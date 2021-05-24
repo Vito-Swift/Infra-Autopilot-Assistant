@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" serverName="Remote Host (8f414127-b97a-4e5a-9b2e-3c8985199765)" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="Remote Host (8b0d439f-4a49-4200-9bf5-9596eea3d9b2)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/tmp/tmp.3SNubaVh5g" local="$PROJECT_DIR$" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-remote-host" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug-remote-host" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="Remote Host (8f414127-b97a-4e5a-9b2e-3c8985199765)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/vitowu/tmp" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="WSL (1034d07c-8a1f-4a6f-94cb-aaebc2e228c0)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="WSL (9a6966b3-ddd1-4dea-831b-48185ba4aa6c)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="WSL (a8b7968d-d1d0-456d-9b2c-532f5409f69b)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="WSL (e478c0f2-c773-4ca3-b5b4-4b8a900468d5)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="XPS15(CUDA) (3a609048-bc3e-4677-9178-d0521dc5ab93)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="XPS15(CUDA) (bfc350f5-c3fa-4836-8670-8f186962b400)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>

@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/LamppostMain.dir/src/LP_Main.cc.o CMakeFiles/LamppostMain.dir/src/LP_CommPanel.cc.o -o LamppostMain  -Wl,-rpath,/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host libDRIVER_LIB.so /usr/lib/libwiringPi.so 

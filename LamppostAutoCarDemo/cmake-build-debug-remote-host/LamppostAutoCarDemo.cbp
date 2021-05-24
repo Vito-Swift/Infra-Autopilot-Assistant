@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="LamppostAutoCarDemo"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="LamppostMain">
+				<Option output="/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/LamppostMain" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/tmp/tmp.3SNubaVh5g/driver"/>
+					<Add directory="/tmp/tmp.3SNubaVh5g/include"/>
+					<Add directory="/tmp/tmp.3SNubaVh5g/pthread"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/arm-linux-gnueabihf/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/arm-linux-gnueabihf/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/arm-linux-gnueabihf/8/include-fixed"/>
+					<Add directory="/usr/include/arm-linux-gnueabihf"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 LamppostMain"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="LamppostMain/fast">
+				<Option output="/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/LamppostMain" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/tmp/tmp.3SNubaVh5g/driver"/>
+					<Add directory="/tmp/tmp.3SNubaVh5g/include"/>
+					<Add directory="/tmp/tmp.3SNubaVh5g/pthread"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/arm-linux-gnueabihf/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/arm-linux-gnueabihf/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/arm-linux-gnueabihf/8/include-fixed"/>
+					<Add directory="/usr/include/arm-linux-gnueabihf"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 LamppostMain/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="DRIVER_LIB">
+				<Option output="/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/libDRIVER_LIB.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/tmp/tmp.3SNubaVh5g/driver"/>
+					<Add directory="/tmp/tmp.3SNubaVh5g/include"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/arm-linux-gnueabihf/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/arm-linux-gnueabihf/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/arm-linux-gnueabihf/8/include-fixed"/>
+					<Add directory="/usr/include/arm-linux-gnueabihf"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 DRIVER_LIB"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="DRIVER_LIB/fast">
+				<Option output="/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/libDRIVER_LIB.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/tmp/tmp.3SNubaVh5g/driver"/>
+					<Add directory="/tmp/tmp.3SNubaVh5g/include"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/arm-linux-gnueabihf/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/arm-linux-gnueabihf/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/arm-linux-gnueabihf/8/include-fixed"/>
+					<Add directory="/usr/include/arm-linux-gnueabihf"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 DRIVER_LIB/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="ControlNodeMain">
+				<Option output="/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/ControlNodeMain" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/tmp/tmp.3SNubaVh5g/driver"/>
+					<Add directory="/tmp/tmp.3SNubaVh5g/include"/>
+					<Add directory="/tmp/tmp.3SNubaVh5g/pthread"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/arm-linux-gnueabihf/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/arm-linux-gnueabihf/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/arm-linux-gnueabihf/8/include-fixed"/>
+					<Add directory="/usr/include/arm-linux-gnueabihf"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 ControlNodeMain"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="ControlNodeMain/fast">
+				<Option output="/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/ControlNodeMain" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/tmp/tmp.3SNubaVh5g/driver"/>
+					<Add directory="/tmp/tmp.3SNubaVh5g/include"/>
+					<Add directory="/tmp/tmp.3SNubaVh5g/pthread"/>
+					<Add directory="/usr/include/c++/8"/>
+					<Add directory="/usr/include/arm-linux-gnueabihf/c++/8"/>
+					<Add directory="/usr/include/c++/8/backward"/>
+					<Add directory="/usr/lib/gcc/arm-linux-gnueabihf/8/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/arm-linux-gnueabihf/8/include-fixed"/>
+					<Add directory="/usr/include/arm-linux-gnueabihf"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 ControlNodeMain/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/tmp/tmp.3SNubaVh5g/driver/CC2520.c">
+			<Option target="DRIVER_LIB"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.3SNubaVh5g/driver/CC2520.h">
+			<Option target="DRIVER_LIB"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.3SNubaVh5g/driver/CC2520_HW.c">
+			<Option target="DRIVER_LIB"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.3SNubaVh5g/driver/CC2520_HW.h">
+			<Option target="DRIVER_LIB"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.3SNubaVh5g/driver/CC2520_Helper.c">
+			<Option target="DRIVER_LIB"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.3SNubaVh5g/driver/CC2520_Helper.h">
+			<Option target="DRIVER_LIB"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.3SNubaVh5g/include/CN_CommPanel.hh">
+			<Option target="ControlNodeMain"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.3SNubaVh5g/include/ControlNode.hh">
+			<Option target="ControlNodeMain"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.3SNubaVh5g/include/LP_CommPanel.hh">
+			<Option target="LamppostMain"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.3SNubaVh5g/include/Lamppost.hh">
+			<Option target="LamppostMain"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.3SNubaVh5g/src/CN_CommPanel.cc">
+			<Option target="ControlNodeMain"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.3SNubaVh5g/src/CN_Main.cc">
+			<Option target="ControlNodeMain"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.3SNubaVh5g/src/LP_CommPanel.cc">
+			<Option target="LamppostMain"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.3SNubaVh5g/src/LP_Main.cc">
+			<Option target="LamppostMain"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.3SNubaVh5g/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

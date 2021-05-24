@@ -1,0 +1,1 @@
+/usr/bin/cc -fPIC -g -shared -Wl,-soname,libDRIVER_LIB.so -o libDRIVER_LIB.so CMakeFiles/DRIVER_LIB.dir/driver/CC2520.c.o CMakeFiles/DRIVER_LIB.dir/driver/CC2520_Helper.c.o CMakeFiles/DRIVER_LIB.dir/driver/CC2520_HW.c.o  /usr/lib/libwiringPi.so 
