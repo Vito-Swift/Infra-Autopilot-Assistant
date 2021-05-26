@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/ControlNodeMain.dir/src/CN_Main.cc.o CMakeFiles/ControlNodeMain.dir/src/CN_CommPanel.cc.o -o ControlNodeMain  -Wl,-rpath,/tmp/tmp.3SNubaVh5g/cmake-build-debug-remote-host libDRIVER_LIB.so /usr/lib/libwiringPi.so 
