@@ -6,6 +6,8 @@ services:
             context: ./
             dockerfile: ./Dockerfile
         image: clion_dev
+        cap_add:
+            - NET_ADMIN
         security_opt: 
             - seccomp:unconfined
         container_name: debug

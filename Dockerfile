@@ -7,7 +7,7 @@ RUN apt install -y apt-utils gcc g++ openssh-server cmake build-essential gdb gd
 # Configure sshd
 RUN mkdir /var/run/sshd
 RUN echo 'root:root' | chpasswd
-RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 RUN echo "StrictHostKeyChecking accept-new" >> /etc/ssh/ssh_config
 RUN sed  's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 RUN echo "export VISIBLE=now" >> /etc/profile
