@@ -9,6 +9,8 @@
 #ifndef LAMPPOSTAUTOCARDEMO_UTILS_HH
 #define LAMPPOSTAUTOCARDEMO_UTILS_HH
 
+#define MOCK
+
 /*  ********************************************************
  *                 Included Headers and Macros
  * *********************************************************/
@@ -47,21 +49,6 @@ typedef struct {
 } RBCoordinate;
 
 /**
- * Type: LamppostProg
- * Note: This structure contains all the intermediate meta-data essential to
- *      the whole execution flow. In practice, users passed this option to
- *      LamppostProg_init(), LamppostProg_exec(), LamppostProg_exit() in
- *      order to control the execution flow
- */
-typedef struct {
-    Options options;
-    pthread_t detection_handler;
-    pthread_t comm_handler;
-    pthread_mutex_t mutex_RBC;
-    std::vector <RBCoordinate> RoadBlockCoordinates;
-} LamppostProg;
-
-/**
  * Class: Queue
  * Note: This class is used as a thread-safe queue to mediate between multiple
  *      concurrent threads.
@@ -95,5 +82,20 @@ private:
     mutable std::mutex m;
     std::condition_variable c;
 };
+
+/**
+ * Type: LamppostHostProg
+ * Note: This structure contains all the intermediate meta-data essential to
+ *      the whole execution flow. In practice, users passed this option to
+ *      LamppostProg_init(), LamppostProg_exec(), LamppostProg_exit() in
+ *      order to control the execution flow
+ */
+typedef struct {
+    Options options;
+    pthread_t detection_handler;
+    pthread_t comm_handler;
+    pthread_mutex_t mutex_RBC;
+    std::vector <RBCoordinate> RoadBlockCoordinates;
+} LamppostHostProg;
 
 #endif //LAMPPOSTAUTOCARDEMO_UTILS_HH

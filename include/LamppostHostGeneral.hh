@@ -24,11 +24,8 @@
 #include <vector>
 
 #include "utils.hh"
-#include "LP_CommPanel.hh"
-#include "LP_RBDetection.hh"
-
-#define MOCK
-
+#include "LamppostHostCommPanel.hh"
+#include "LamppostHostRBDetection.hh"
 
 /*  ********************************************************
  *               Inline Functions and Prototypes
@@ -40,10 +37,10 @@ void options_parse(Options *options);
 
 void options_free(Options *options);
 
-void lamppost_program_init(LamppostProg *lamppostProg);
+void lamppost_program_init(LamppostHostProg *lamppostProg, int argc, char** argv);
 
-void lamppost_program_run(LamppostProg *lamppostProg, int argc, char** argv);
+void lamppost_program_run(LamppostHostProg *lamppostProg);
 
-void lamppost_program_exit(LamppostProg *lamppostProg);
+void lamppost_program_exit(LamppostHostProg *lamppostProg);
 
 #endif //LAMPPOSTAUTOCARDEMO_LAMMPOST_HH

@@ -6,7 +6,7 @@
  * @date: 5/27/2021
  */
 
-#include "LP_General.hh"
+#include "LamppostHostGeneral.hh"
 
 void options_init(Options *options) {
 
@@ -20,15 +20,15 @@ void options_free(Options *options) {
 
 }
 
-void lamppost_program_init(LamppostProg *lamppostProg, int argc, char **argv) {
+void lamppost_program_init(LamppostHostProg *lamppostProg, int argc, char **argv) {
     options_init(&lamppostProg->options);
     options_parse(&lamppostProg->options, argc, argv);
 }
 
-void lamppost_program_run(LamppostProg *lamppostProg) {
+void lamppost_program_run(LamppostHostProg *lamppostProg) {
 
 }
 
-void lamppost_program_exit(LamppostProg *lamppostProg) {
+void lamppost_program_exit(LamppostHostProg *lamppostProg) {
     options_free(&lamppostProg->options);
 }

@@ -6,5 +6,5 @@
  * @date: 4/16/2021
  */
 
-#include "LP_CommPanel.hh"
+#include "LamppostHostCommPanel.hh"
 

@@ -6,10 +6,10 @@
  * @date: 4/16/2021
  */
 
-#include "LP_General.hh"
+#include "LamppostHostGeneral.hh"
 
 int main(int argc, char **argv) {
-    LamppostProg prog;
+    LamppostHostProg prog;
     lamppost_program_init(&prog, argc, argv);
     lamppost_program_run(&prog);
     lamppost_program_exit(&prog);

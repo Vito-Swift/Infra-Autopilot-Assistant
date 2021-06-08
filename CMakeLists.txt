@@ -2,7 +2,7 @@
 project(LamppostAutoCarDemo)
 message(${CMAKE_CURRENT_SOURCE_DIR})
 
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -35,17 +35,14 @@ target_include_directories(ControlNodeMain
         PRIVATE include
         PRIVATE pthread)
 
-add_executable(LamppostMain
-        src/LP_Main.cc
-        src/LP_CommPanel.cc
-        src/LP_General.cc
-        src/LP_RBDetection.cc
-        include/LP_CommPanel.hh
-        include/LP_General.hh
-        include/LP_RBDetection.hh
+add_executable(LamppostHost
+        src/LamppostHostMain.cc
+        src/LamppostHostGeneral.cc
+        src/LamppostHostRBDetection.cc
+        include/LamppostHostCommPanel.hh
+        include/LamppostHostGeneral.hh
+        include/LamppostHostRBDetection.hh
         include/utils.hh)
-target_link_libraries(LamppostMain DRIVER_LIB)
-target_include_directories(LamppostMain
-        PRIVATE driver
+target_include_directories(LamppostHost
         PRIVATE include
         PRIVATE pthread)
