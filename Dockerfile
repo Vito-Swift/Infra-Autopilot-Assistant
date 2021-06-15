@@ -49,30 +49,51 @@ RUN cd batspro2 && mkdir build && cd build && cmake .. && make
 
 # Build OpenCV
 WORKDIR /opencv-build-workdir
-RUN apt install -y pkg-config python-dev python-opencv libopencv-dev ffmpeg  \
-                       libjpeg-dev libpng-dev libtiff-dev opencv-data libgtk2.0-dev \
-                       python-numpy python-pycurl libatlas-base-dev gfortran webp \
-                       python-opencv qt5-default libvtk6-dev zlib1g-dev
-RUN apt install -y unzip
-RUN wget https://github.com/opencv/opencv/archive/3.0.0.zip
-RUN unzip 3.0.0.zip && rm 3.0.0.zip
-RUN sed -i 's/-dumpversion/-dumpfullversion/g' opencv-3.0.0/cmake/OpenCVDetectCXXCompiler.cmake
+RUN apt-get update \
+    && apt-get install -y \
+        build-essential \
+        cmake \
+        git \
+        wget \
+        unzip \
+        yasm \
+        pkg-config \
+        libswscale-dev \
+        libtbb2 \
+        libtbb-dev \
+        libjpeg-dev \
+        libpng-dev \
+        libtiff-dev \
+        libavformat-dev \
+        libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 RUN pip3 install numpy
-RUN apt install -y g++-7 gcc-7
-WORKDIR /opencv-build-workdir/opencv-3.0.0/build
-RUN cmake \
-    -DWITH_QT=ON \
-    -DWITH_OPENGL=ON \
-    -DFORCE_VTK=ON \
-    -DWITH_TBB=ON \
-    -DWITH_GDAL=ON \
-    -DWITH_XINE=ON \
-    -DBUILD_EXAMPLES=ON \
-    -Wno-dev \
-    -DENABLE_PRECOMPILED_HEADERS=OFF ..
-RUN make -j8
-RUN make install
-RUN ldconfig
+WORKDIR /
+ENV OPENCV_VERSION="4.1.0"
+RUN wget https://github.com/opencv/opencv_contrib/archive/${OPENCV_VERSION}.zip \
+&& unzip ${OPENCV_VERSION}.zip \
+&& rm ${OPENCV_VERSION}.zip
+RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
+&& unzip ${OPENCV_VERSION}.zip \
+&& mkdir /opencv-${OPENCV_VERSION}/cmake_binary \
+&& cd /opencv-${OPENCV_VERSION}/cmake_binary \
+&& cmake -DBUILD_TIFF=ON \
+  -DBUILD_opencv_java=OFF \
+  -DOPENCV_EXTRA_MODULES_PATH=/opencv_contrib-${OPENCV_VERSION}/modules \
+  -DWITH_CUDA=OFF \
+  -DWITH_OPENGL=ON \
+  -DWITH_OPENCL=ON \
+  -DWITH_IPP=ON \
+  -DWITH_TBB=ON \
+  -DWITH_EIGEN=ON \
+  -DWITH_V4L=ON \
+  -DBUILD_TESTS=OFF \
+  -DBUILD_PERF_TESTS=OFF \
+  -DCMAKE_BUILD_TYPE=RELEASE \
+  .. \
+&& make install \
+&& rm /${OPENCV_VERSION}.zip \
+&& rm -r /opencv-${OPENCV_VERSION}
 
 # Enable SSH
 CMD ["/usr/sbin/sshd", "-D"]
