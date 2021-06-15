@@ -6,3 +6,12 @@
  * @date: 5/27/2021
  */
 
+#include "LamppostHostRBDetection.hh"
+
+void RBDetectionThreads() {
+#ifdef MOCK
+
+#else
+    // do the real road block detection
+#endif
+}

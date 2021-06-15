@@ -21,6 +21,7 @@
 #include <time.h>
 #include <stdbool.h>
 #include <pthread.h>
+#include <signal.h>
 #include <vector>
 
 #include "utils.hh"
