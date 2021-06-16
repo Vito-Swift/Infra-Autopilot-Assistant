@@ -82,6 +82,7 @@ typedef struct {
     int root_addr;              // network address of root lamppost
     bool mock_detection;        // if this option is enabled, road block detection will be mocked
     char* config_file_path;     // path to configuration file
+    bool is_root_node;          // true if this lamppost is root node
 } Options;
 
 /**
