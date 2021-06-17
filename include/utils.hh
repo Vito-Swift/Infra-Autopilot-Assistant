@@ -18,6 +18,17 @@
 #include <condition_variable>
 #include <mutex>
 #include <queue>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <fstream>
+#include <sys/stat.h>
+#include <assert.h>
+#include <string>
+#include <regex>
 
 /*  ********************************************************
  *                 Data Structures
@@ -69,42 +80,139 @@ private:
     std::condition_variable c;
 };
 
-/**
- * Type: Options
- * Note: This structure is set to store the user options passed when init.
- *      The corresponding usage of each command is written as comment after
- *      each data field.
+/*  ********************************************************
+ *                 Misc Utilities
+ * *********************************************************/
+#define TIMEVAL2F(stamp) \
+    ((stamp).tv_sec * 1000.0 + (stamp).tv_usec / 1000.0)
+
+double get_timestamp();
+
+/* print msg with timestamp */
+#define PRINTF_STAMP(format, ...) \
+    do { \
+        flockfile(stdout); \
+        printf("%12.2f - ", get_timestamp()); \
+        printf(format, ##__VA_ARGS__); \
+        fflush(stdout); \
+        funlockfile(stdout); \
+    } while(0)
+
+/* print error msg to stderr */
+#define PRINTF_ERR(format, ...) \
+    do { \
+        flockfile(stderr); \
+        fprintf(stderr, format, ##__VA_ARGS__); \
+        fflush(stderr); \
+        funlockfile(stderr); \
+    } while(0)
+
+/* print error msg with timestamp to stderr */
+#define PRINTF_ERR_STAMP(format, ...) \
+    do { \
+        flockfile(stderr); \
+        fprintf(stderr, "%12.2f - ", get_timestamp()); \
+        PRINTF_ERR(format, ##__VA_ARGS__); \
+        funlockfile(stderr); \
+    } while(0)
+
+/* print error msg with timestamp to stderr then exit */
+#define EXIT_WITH_MSG(format, ...) \
+    do { \
+        PRINTF_ERR_STAMP(format, ##__VA_ARGS__); \
+        exit(-1); \
+    } while (0)
+
+/* print msg with timestamp to stderr if in debug mode */
+#ifndef NDEBUG
+#define PRINTF_DEBUG(format, ...) \
+        PRINTF_ERR_STAMP(format, ##__VA_ARGS__)
+#else
+#define PRINTF_DEBUG(...)
+#endif
+
+#ifndef PRINTF_DEBUG_VERBOSE
+#define PRINTF_DEBUG_VERBOSE(_verbose, format, ...) \
+    do { \
+        if (_verbose) \
+            PRINTF_ERR_STAMP(format, ##__VA_ARGS__); \
+    } while (0)
+#endif
+
+/* print array to stderr if in debug mode */
+#ifndef NDEBUG
+#define PRINT_ARRAY_DEBUG(ele_format, array, size) \
+        do { \
+            unsigned int i; \
+            fprintf(stderr, "%12.2f - array " #array ": ", get_timestamp()); \
+            for(i = 0; i < (size); i++) { \
+                fprintf(stderr, ele_format, (array)[i]); \
+            } \
+            fprintf(stderr, "\n"); \
+            fflush(stderr); \
+        } while (0)
+#else
+#define PRINT_ARRAY_DEBUG(...)
+#endif
+
+/* function: safe_malloc
+ * usage: abort if malloc failed
+ * arguments: size, number of bytes to allocate
+ * return: a void* pointer
  */
-typedef struct {
-    int pan;                    // network pan of localhost
-    int addr;                   // network address of localhost
-    int root_pan;               // network pan of root lamppost
-    int root_addr;              // network address of root lamppost
-    bool mock_detection;        // if this option is enabled, road block detection will be mocked
-    char* config_file_path;     // path to configuration file
-    bool is_root_node;          // true if this lamppost is root node
-} Options;
+void *safe_malloc(size_t size);
 
-/**
- * Type: LamppostHostProg
- * Note: This structure contains all the intermediate meta-data essential to
- *      the whole execution flow. In practice, users passed this option to
- *      LamppostProg_init(), LamppostProg_exec(), LamppostProg_exit() in
- *      order to control the execution flow
+/* macro: SMALLOC
+ * usage: smart malloc, abort if malloc failed
+ * arguments:
+ *      1) type: type of the elements
+ *      2) num: number of the elements
+ * return: a type* pointer
  */
-typedef struct {
-    // data structure to store options
-    Options options;
-    // thread to launch road block detection program
-    pthread_t detection_thread;
-    // thread to launch communicator
-    pthread_t communicator_thread;
+#define SMALLOC(type, num) \
+    ((type*) safe_malloc((num) * sizeof(type)))
 
-    // data field to store termination flag
-    pthread_mutex_t* terminate_mutex;
-    int* terminate;
+/* macro: SFREE
+ * usage: smart free, release the address then set the pointer to NULL
+ * arguments: a pointer whose memory chunk is to be released
+ * return void
+ */
+#define SFREE(ptr) \
+    do { \
+        if(NULL != ptr) { \
+            free(ptr); \
+            ptr = NULL; \
+        } \
+    } while (0)
 
-    std::vector <RBCoordinate> RoadBlockCoordinates;
-} LamppostHostProg;
 
+inline bool isFileExist(const std::string &name) {
+    struct stat buffer;
+    return (stat(name.c_str(), &buffer) == 0);
+}
+
+inline constexpr unsigned int hash(const char *s, int off = 0) {
+    return !s[off] ? 5381 : (hash(s, off + 1) * 33) ^ s[off];
+}
+
+#ifdef WINDOWS
+#include <direct.h>
+#define GetCurrentDir _getcwd
+#else
+
+#include <unistd.h>
+
+#define GetCurrentDir getcwd
+#endif
+
+inline int currentPath(std::string &path) {
+    char cCurrentPath[FILENAME_MAX];
+
+    if (!GetCurrentDir(cCurrentPath, sizeof(cCurrentPath))) {
+        return errno;
+    }
+
+    cCurrentPath[sizeof(cCurrentPath) - 1] = '\0'; /* not really required */
+    path = std::string(cCurrentPath);
+}
 #endif //LAMPPOSTAUTOCARDEMO_UTILS_HH

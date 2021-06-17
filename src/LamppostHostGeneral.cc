@@ -12,15 +12,20 @@ static int terminate;
 static pthread_mutex_t terminate_mutex;
 
 void interrupt_handler(int dummy) {
-    printf("Catch CTRL-C signal.\n"
-           "Terminate detached threads and exit.\n");
+    PRINTF_STAMP("Catch CTRL-C signal.\n"
+                 "Terminate detached threads and exit.\n");
     pthread_mutex_lock(&terminate_mutex);
     terminate = 1;
     pthread_mutex_unlock(&terminate_mutex);
 }
 
 void options_init(Options *options) {
+    options->config_file_path = nullptr;
+}
 
+bool options_validate(Options *options) {
+
+    return 0;
 }
 
 void options_parse(Options *options, int argc, char **argv) {

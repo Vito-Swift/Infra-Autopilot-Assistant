@@ -133,12 +133,6 @@ RUN cd batspro2 && mkdir build && cd build && cmake .. && make -j4 && make insta
 
 
 #############################################
-# Enable IPv6
-#############################################
-RUN sed -i 's/disable_ipv6\s=\s1/disable_ipv6 = 0/g' /etc/sysctl.conf && /sbin/sysctl -p
-
-
-#############################################
 # Enable SSH
 #############################################
 CMD ["/usr/sbin/sshd", "-D"]
@@ -147,6 +141,6 @@ CMD ["/usr/sbin/sshd", "-D"]
 #############################################
 # Enable BATS network simulation
 #############################################
-CMD ["/bats-protocol-workdir/batspro2/Utilities/simulation/bmsim_ipv4.sh", "start", "4"]
+# CMD ["/bats-protocol-workdir/batspro2/Utilities/simulation/bmsim_ipv4.sh", "start", "4"]
 # A virtual BATS network is established at the start of the docker container
 #   Node 0: 0.0.1.0 <-> Node 1: 0.0.1.1 <-> Node 2: 0.0.1.2 <-> Node 3: 0.0.1.3

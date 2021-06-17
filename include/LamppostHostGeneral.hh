@@ -24,7 +24,7 @@
 #include <signal.h>
 #include <vector>
 
-#include "utils.hh"
+#include "LamppostHostUtils.hh"
 #include "LamppostHostCommPanel.hh"
 #include "LamppostHostRBDetection.hh"
 
@@ -32,9 +32,9 @@
  *               Inline Functions and Prototypes
  * *********************************************************/
 
-void options_init(Options *options, int argc, char** argv);
+void options_init(Options *options);
 
-void options_parse(Options *options);
+void options_parse(Options *options, int argc, char** argv);
 
 void options_free(Options *options);
 

@@ -11,6 +11,10 @@ message(${CMAKE_CURRENT_SOURCE_DIR})
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+find_package(Boost REQUIRED regex date_time system)
+include_directories(${BOOST_INCLUDE_DIRS})
+message("boost lib: ${Boost_LIBRARIES}")
+message("boost inc: ${Boost_INCLUDE_DIR}")
 
 
 ################################################################
@@ -58,13 +62,16 @@ add_executable(LamppostHost
         src/LamppostHostGeneral.cc
         src/LamppostHostRBDetection.cc
         src/LamppostHostCommPanel.cc
+        src/utils.cc
         include/LamppostHostCommPanel.hh
         include/LamppostHostGeneral.hh
         include/LamppostHostRBDetection.hh
+        include/LamppostHostUtils.hh
         include/utils.hh)
 target_link_libraries(LamppostHost
         btp
-        ipc)
+        ipc
+        ${Boost_LIBRARIES})
 target_include_directories(LamppostHost
         PRIVATE include
         PRIVATE pthread)
