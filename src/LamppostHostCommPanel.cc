@@ -7,14 +7,17 @@
  */
 
 #include "LamppostHostCommPanel.hh"
-#include "BATSSocket.h"
+#include <BATSSocket.h>
+
+using namespace BATSProtocol;
 
 // TODO: functions in this file aim to provide following supports
 //  1. send retrieved GPS coordinate of road blocks to root node
 //  2. send all GPS coordinates to hook node (for root node only)
 
 void LamppostHostCommCoordSender(LamppostHostProg* prog) {
-    int rootNodeAddr =
+    BATSSocket socket;
+    socket.init();
 }
 
 void LamppostHostCommHookPan(LamppostHostProg* prog) {

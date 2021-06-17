@@ -11,6 +11,8 @@ services:
         security_opt: 
             - seccomp:unconfined
         container_name: debug
+        ulimits:
+            msgqueue: -1
         ports:
             - "7776:22"
             - "7777:7777"

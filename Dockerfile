@@ -111,6 +111,7 @@ RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
 WORKDIR /bats-protocol-workdir
 RUN apt install -y libboost-all-dev
 RUN apt install -y iproute2
+RUN apt install -y htop
 RUN DEBIAN_FRONTEND="noninteractive" apt install -y expect iperf3
 RUN git clone git@github.com:batsiot/batspro2
 RUN cd batspro2 && dpkg -i libbats-0.1.3-Linux-amd64.deb
@@ -126,11 +127,26 @@ RUN cd batspro2 && echo $'install (TARGETS btp ipc DESTINATION lib)\n\
                                         Socket/include/BATSSocket.h \
                                         Socket/include/BPSocket.h \
                                         Socket/include/IPC_UDS.h \
-                                        DESTINATION include)' | tee -a /bats-protocol-workdir/batspro2/BTP/CMakeLists.txt \
-        && mkdir build && cd build && cmake .. && make -j4 && make install
+                                        DESTINATION include)' | tee -a /bats-protocol-workdir/batspro2/BTP/CMakeLists.txt
+RUN sed -i 's/LOG_MSQ_MAX_MSGS\s16/LOG_MSQ_MAX_MSGS 10/g' batspro2/Utilities/BATSLogger/src/BATSLogger.h
+RUN cd batspro2 && mkdir build && cd build && cmake .. && make -j4 && make install
+
+
+#############################################
+# Enable IPv6
+#############################################
+RUN sed -i 's/disable_ipv6\s=\s1/disable_ipv6 = 0/g' /etc/sysctl.conf && /sbin/sysctl -p
 
 
 #############################################
 # Enable SSH
 #############################################
 CMD ["/usr/sbin/sshd", "-D"]
+
+
+#############################################
+# Enable BATS network simulation
+#############################################
+CMD ["/bats-protocol-workdir/batspro2/Utilities/simulation/bmsim_ipv4.sh", "start", "4"]
+# A virtual BATS network is established at the start of the docker container
+#   Node 0: 0.0.1.0 <-> Node 1: 0.0.1.1 <-> Node 2: 0.0.1.2 <-> Node 3: 0.0.1.3
