@@ -8,6 +8,7 @@
 #include "utils.hh"
 
 #include <getopt.h>
+#include <atomic>
 
 /**
  * Type: Options
@@ -49,13 +50,10 @@ typedef struct {
     // thread to launch road block detection program
     pthread_t detection_thread;
     // thread to launch communicator
-    pthread_t communicator_thread;
+    pthread_t send_thread;
+    pthread_t recv_thread;
 
-    // data field to store termination flag
-    pthread_mutex_t *terminate_mutex;
-    int *terminate;
-
-    std::vector<RBCoordinate> RoadBlockCoordinates;
+    Queue<RBCoordinate> RoadBlockCoordinates;
 } LamppostHostProg;
 
 inline void print_usage(const char *prg_name) {

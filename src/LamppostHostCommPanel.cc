@@ -15,10 +15,14 @@ using namespace BATSProtocol;
 //  1. send retrieved GPS coordinate of road blocks to root node
 //  2. send all GPS coordinates to hook node (for root node only)
 
-void LamppostHostCommCoordSender(LamppostHostProg* prog) {
-
+void *LamppostHostSendThread(void *vargp) {
+    auto args = (SendThreadArgs_t *) vargp;
 }
 
-void LamppostHostCommHookPan(LamppostHostProg* prog) {
+void *LamppostHostRecvThread(void *vargp) {
+    auto args = (RecvThreadArgs_t *) vargp;
+}
+
+void LamppostHostCommHookPan(LamppostHostProg *prog) {
 
 }

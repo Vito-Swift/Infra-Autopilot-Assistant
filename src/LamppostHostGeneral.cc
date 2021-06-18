@@ -11,15 +11,17 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 
-static int terminate;
-static pthread_mutex_t terminate_mutex;
+std::atomic<bool> term_flag;
+LamppostHostProg *globalHostProg;
 
 void interrupt_handler(int dummy) {
-    PRINTF_STAMP("Catch CTRL-C signal.\n"
-                 "Terminate detached threads and exit.\n");
-    pthread_mutex_lock(&terminate_mutex);
-    terminate = 1;
-    pthread_mutex_unlock(&terminate_mutex);
+    PRINTF_STAMP("Catch CTRL-C signal.\n");
+    PRINTF_STAMP("Terminate detached threads and exit.\n");
+    term_flag = true;
+    pthread_exit(&globalHostProg->detection_thread);
+    pthread_exit(&globalHostProg->send_thread);
+    pthread_exit(&globalHostProg->recv_thread);
+    lamppost_program_exit(globalHostProg);
 }
 
 static inline void copy_opt(char **str, char *optarg) {
@@ -157,18 +159,15 @@ void options_free(Options *options) {
 void lamppost_program_init(LamppostHostProg *lamppostProg, int argc, char **argv) {
     options_init(&lamppostProg->options);
     options_parse(&lamppostProg->options, argc, argv);
-    terminate = 0;
-    lamppostProg->terminate_mutex = &terminate_mutex;
-    lamppostProg->terminate = &terminate;
+    term_flag = false;
+    globalHostProg = lamppostProg;
 }
 
 void lamppost_program_run(LamppostHostProg *lamppostProg) {
     signal(SIGINT, interrupt_handler);
 
-    int term_flag = 0;
-
     // launch thread to detect from video stream
-    RBDetectionThreadArgs_t detection_args{.hostProg = lamppostProg};
+    RBDetectionThreadArgs_t detection_args{.hostProg = lamppostProg, .terminate_flag = &term_flag};
     if (lamppostProg->options.mock_detection) {
         PRINTF_STAMP("Launch mock thread to detect road blocks...\n");
         pthread_create(&lamppostProg->detection_thread, nullptr, RBDetectionMockThread, (void *) &detection_args);
@@ -180,6 +179,12 @@ void lamppost_program_run(LamppostHostProg *lamppostProg) {
 
     // launch thread to send coordinates of detected road block to root node
     PRINTF_STAMP("Launch thread to communicate with root node...\n");
+    pthread_create(&lamppostProg->send_thread, nullptr, )
+
+    // if the current node is root node, launch thread to manage received data from other nodes
+    if (lamppostProg->options.is_root_node) {
+
+    }
 
     // if the current node is root node, launch thread to communicate with hook node
     if (lamppostProg->options.is_root_node) {
@@ -188,9 +193,8 @@ void lamppost_program_run(LamppostHostProg *lamppostProg) {
 
     while (!term_flag) {
         // determine whether the program needs to terminate
-        pthread_mutex_unlock(lamppostProg->terminate_mutex);
-        term_flag = *(lamppostProg->terminate);
-        pthread_mutex_lock(lamppostProg->terminate_mutex);
+        PRINTF_STAMP("Main program is still alive...\n");
+        sleep(10);
     }
 }
 

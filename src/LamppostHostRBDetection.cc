@@ -8,14 +8,15 @@
 
 #include "LamppostHostRBDetection.hh"
 
-void* RBDetectionThread(void *vargp) {
+void *RBDetectionThread(void *vargp) {
     auto args = (RBDetectionThreadArgs_t *) vargp;
 }
 
-void* RBDetectionMockThread(void* vargp) {
-    auto args = (RBDetectionThreadArgs_t*) vargp;
-    while (true) {
+void *RBDetectionMockThread(void *vargp) {
+    auto args = (RBDetectionThreadArgs_t *) vargp;
+    while (!(*args->terminate_flag)) {
         PRINTF_THREAD_STAMP("Mock add RBCoordinate into queue\n");
         sleep(1);
     }
+    PRINTF_THREAD_STAMP("Catch termination flag, exit thread\n");
 }

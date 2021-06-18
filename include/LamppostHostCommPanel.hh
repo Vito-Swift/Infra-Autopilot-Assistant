@@ -10,7 +10,20 @@
 #define LAMPPOSTAUTOCARDEMO_LAMPPOSTHOSTCOMMPANEL_HH
 
 #include "LamppostHostUtils.hh"
+#include <atomic>
 
-void mock_comm_receiver();
+typedef struct SendThreadArgs {
+    LamppostHostProg *hostProg;
+    std::atomic<bool> terminate_flag;
+} SendThreadArgs_t;
+
+void *LamppostHostSendThread(void *vargp);
+
+typedef struct RecvThreadArgs {
+    LamppostHostProg *hostProg;
+    std::atomic<bool> terminate_flag;
+} RecvThreadArgs_t;
+
+void *LamppostHostRecvThread(void *vargp);
 
 #endif //LAMPPOSTAUTOCARDEMO_LAMPPOSTHOSTCOMMPANEL_HH
