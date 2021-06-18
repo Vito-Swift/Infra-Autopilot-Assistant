@@ -16,8 +16,7 @@ using namespace BATSProtocol;
 //  2. send all GPS coordinates to hook node (for root node only)
 
 void LamppostHostCommCoordSender(LamppostHostProg* prog) {
-    BATSSocket socket;
-    socket.init();
+
 }
 
 void LamppostHostCommHookPan(LamppostHostProg* prog) {

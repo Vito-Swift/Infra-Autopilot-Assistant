@@ -7,6 +7,8 @@
 
 #include "utils.hh"
 
+#include <getopt.h>
+
 /**
  * Type: Options
  * Note: This structure is set to store the user options passed when init.
@@ -14,23 +16,23 @@
  *      each data field.
  */
 typedef struct {
-    int netaddr;                // bats network address of local node   (required)
-    int root_bats_netaddr;      // bats network address of root node    (required)
-    int root_bats_port;         // bats port of root node               (required)
-    int ctrl_pan;               // zigbee pan of control node           (set only when launch on root)
-    int ctrl_addr;              // zigbee net address of control node   (set only when launch on root)
-    int root_pan;               // zigbee pan of root lamppost          (set only when launch on root)
-    int root_addr;              // zigbee net address of root lamppost  (set only when launch on root)
-    bool mock_detection;        // if this option is enabled, road block detection will be mocked
-    char *config_file_path;     // path to configuration file
-    bool is_root_node;          // true if this lamppost is root node
+    std::string netaddr_str;            // bats network address of local node   (required)
+    std::string root_net_addr;          // bats network address of root node    (required)
+    int root_port;                 // bats port of root node               (required)
+    int ctrl_pan;                       // zigbee pan of control node           (set only when launch on root)
+    int ctrl_addr;                      // zigbee net address of control node   (set only when launch on root)
+    int root_pan;                       // zigbee pan of root lamppost          (set only when launch on root)
+    int root_addr;                      // zigbee net address of root lamppost  (set only when launch on root)
+    bool mock_detection;                // if this option is enabled, road block detection will be mocked
+    char *config_file_path;             // path to configuration file
+    bool is_root_node;                  // true if this lamppost is root node
 } Options;
 enum opt_types {
     OP_CONFIG_PATH = 1,
     OP_MOCK_DETECTION,
 };
 static struct option lamppost_host_long_opts[]{
-        {"config_path",    required_argument, nullptr, OP_CONFIG_PATH},
+        {"config_file",    required_argument, nullptr, OP_CONFIG_PATH},
         {"mock_detection", no_argument,       nullptr, OP_MOCK_DETECTION},
 };
 

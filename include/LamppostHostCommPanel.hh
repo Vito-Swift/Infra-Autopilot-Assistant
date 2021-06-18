@@ -9,7 +9,7 @@
 #ifndef LAMPPOSTAUTOCARDEMO_LAMPPOSTHOSTCOMMPANEL_HH
 #define LAMPPOSTAUTOCARDEMO_LAMPPOSTHOSTCOMMPANEL_HH
 
-#include "utils.hh"
+#include "LamppostHostUtils.hh"
 
 void mock_comm_receiver();
 

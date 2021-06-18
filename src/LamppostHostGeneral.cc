@@ -54,9 +54,9 @@ GetPropertyTree(const boost::property_tree::ptree &pt, const std::string entry, 
                           entry.c_str());
         }
         if (default_val == nullptr) {
-            EXIT_WITH_MSG("Failed to complete non-exist entry %s with default value.\n", entry);
+            EXIT_WITH_MSG("Failed to complete non-exist entry %s with default value.\n", entry.c_str());
         } else {
-            PRINTF_STAMP("Entry %s does not exist, complete with default value.\n", entry.c_str());
+            PRINTF_STAMP("\t\tEntry %s does not exist, complete with default value.\n", entry.c_str());
             return *default_val;
         }
     } else {
@@ -71,29 +71,23 @@ void parse_configuration_file(Options *options) {
 
     // Parse Networking Section
     try {
-        options->netaddr = parseNetAddrStr(GetPropertyTree<std::string>(pt,
-                                                                        "Networking.LocalBATSAddr",
-                                                                        true,
-                                                                        nullptr));
-        options->root_bats_netaddr = parseNetAddrStr(GetPropertyTree<std::string>(pt,
-                                                                                  "Networking.RootBATSAddr",
-                                                                                  true,
-                                                                                  nullptr));
-        options->root_bats_port = GetPropertyTree<uint32_t>(pt, "Networking.RootBATSPort", true, nullptr);
+        options->netaddr_str = GetPropertyTree<std::string>(pt, "Networking.LocalBATSAddr", true, nullptr);
+        options->root_net_addr = GetPropertyTree<std::string>(pt, "Networking.RootBATSAddr", true, nullptr);
+        options->root_port = GetPropertyTree<uint32_t>(pt, "Networking.RootBATSPort", true, nullptr);
         bool is_root_node_def = false;
         options->is_root_node = GetPropertyTree<bool>(pt, "Networking.IsRootNode", false, &is_root_node_def);
     } catch (const std::invalid_argument &e) {
         PRINTF_ERR_STAMP("Parse networking section get invalid_argument failed: %s\n", e.what());
         exit(1);
     } catch (const std::out_of_range &e) {
-        PRINTF_ERR_STAMP("Prase networking section get out_of_range error: %s\n", e.what());
+        PRINTF_ERR_STAMP("Parse networking section get out_of_range error: %s\n", e.what());
         exit(1);
     }
 
     if (options->is_root_node) {
         // Parse Robot Section
         try {
-            
+
         } catch (const std::invalid_argument &e) {
             exit(1);
         } catch (const std::out_of_range &e) {
@@ -102,6 +96,15 @@ void parse_configuration_file(Options *options) {
 
         // Parse Hook Section
     }
+}
+
+void print_option_setting(Options *options) {
+    PRINTF_STAMP("Print options from cmd arguments and configuration file:\n");
+    PRINTF_STAMP("\t\tOption - mock-detection: %s\n", options->mock_detection ? "true" : "false");
+    PRINTF_STAMP("\t\tLocal BATS Addr: %s\n", options->netaddr_str.c_str());
+    PRINTF_STAMP("\t\tRoot BATS Addr: %s\n", options->root_net_addr.c_str());
+    PRINTF_STAMP("\t\tRoot BATS Port: %d\n", options->root_port);
+    PRINTF_STAMP("\t\tRoot Node: %s\n", options->is_root_node ? "true" : "false");
 }
 
 void options_parse(Options *options, int argc, char **argv) {
@@ -143,6 +146,7 @@ void options_parse(Options *options, int argc, char **argv) {
 
     options_validate(options);
     parse_configuration_file(options);
+    print_option_setting(options);
 }
 
 void options_free(Options *options) {
@@ -171,7 +175,7 @@ void lamppost_program_run(LamppostHostProg *lamppostProg) {
 
     // if the current node is root node, launch thread to communicate with hook node
     if (lamppostProg->options.is_root_node) {
-        PRINTF_STAMP("Option is_root_node is enabled, launch thread to communicate with hook node...\n");
+        PRINTF_STAMP("Launch thread to communicate with hook node as option.is_root_node is enabled...\n");
     }
 
     while (!term_flag) {
