@@ -215,4 +215,17 @@ inline int currentPath(std::string &path) {
     cCurrentPath[sizeof(cCurrentPath) - 1] = '\0'; /* not really required */
     path = std::string(cCurrentPath);
 }
+
+inline uint32_t parseNetAddrStr(const std::string &netAddrStr) {
+    uint addr_0, addr_1, addr_2, addr_3;
+    uint32_t addr = 0;
+    if (sscanf(netAddrStr.c_str(), "%d.%d.%d.%d", &addr_0, &addr_1, &addr_2, &addr_3) != 4)
+        return 0;
+    addr = addr_0 << 24;
+    addr |= addr_1 << 16;
+    addr |= addr_2 << 8;
+    addr |= addr_3;
+    return addr;
+}
+
 #endif //LAMPPOSTAUTOCARDEMO_UTILS_HH

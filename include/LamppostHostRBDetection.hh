@@ -9,7 +9,7 @@
 #ifndef LAMPPOSTAUTOCARDEMO_LAMPPOSTHOSTRBDETECTION_HH
 #define LAMPPOSTAUTOCARDEMO_LAMPPOSTHOSTRBDETECTION_HH
 
-#include "utils.hh"
+#include "LamppostHostUtils.hh"
 
 typedef struct RBDetectionThreadArgs {
     LamppostHostProg* hostProg;
