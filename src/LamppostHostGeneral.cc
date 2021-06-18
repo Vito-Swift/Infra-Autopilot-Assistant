@@ -179,7 +179,7 @@ void lamppost_program_run(LamppostHostProg *lamppostProg) {
 
     // launch thread to send coordinates of detected road block to root node
     PRINTF_STAMP("Launch thread to communicate with root node...\n");
-    pthread_create(&lamppostProg->send_thread, nullptr, )
+    //pthread_create(&lamppostProg->send_thread, nullptr, )
 
     // if the current node is root node, launch thread to manage received data from other nodes
     if (lamppostProg->options.is_root_node) {

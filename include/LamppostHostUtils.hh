@@ -19,11 +19,11 @@
 typedef struct {
     std::string netaddr_str;            // bats network address of local node   (required)
     std::string root_net_addr;          // bats network address of root node    (required)
-    int root_port;                 // bats port of root node               (required)
-    int ctrl_pan;                       // zigbee pan of control node           (set only when launch on root)
-    int ctrl_addr;                      // zigbee net address of control node   (set only when launch on root)
-    int root_pan;                       // zigbee pan of root lamppost          (set only when launch on root)
-    int root_addr;                      // zigbee net address of root lamppost  (set only when launch on root)
+    int root_port;                      // bats port of root node               (required)
+    int ctrl_zigbee_pan;                // zigbee pan of control node           (set only when launch on root)
+    int ctrl_zigbee_addr;               // zigbee net address of control node   (set only when launch on root)
+    int root_zigbee_pan;                // zigbee pan of root lamppost          (set only when launch on root)
+    int root_zigbee_addr;               // zigbee net address of root lamppost  (set only when launch on root)
     bool mock_detection;                // if this option is enabled, road block detection will be mocked
     char *config_file_path;             // path to configuration file
     bool is_root_node;                  // true if this lamppost is root node

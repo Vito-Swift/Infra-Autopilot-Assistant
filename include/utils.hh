@@ -39,10 +39,13 @@
  * Note: This structure is set to store the coordinates of road blocks.
  *      In this structure,
  */
-typedef struct {
-    uint32_t index;             // index of the (optional)
-    double gps_x;               //
+typedef struct RBCoordinate {
+    double gps_x;
     double gps_y;
+
+    RBCoordinate(double gps_x, double gps_y) : gps_x(gps_x), gps_y(gps_y) {}
+
+    RBCoordinate() : gps_x(0), gps_y(0) {}
 } RBCoordinate;
 
 /**

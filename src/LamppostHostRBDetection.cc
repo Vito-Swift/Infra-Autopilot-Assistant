@@ -16,6 +16,7 @@ void *RBDetectionMockThread(void *vargp) {
     auto args = (RBDetectionThreadArgs_t *) vargp;
     while (!(*args->terminate_flag)) {
         PRINTF_THREAD_STAMP("Mock add RBCoordinate into queue\n");
+        args->hostProg->RoadBlockCoordinates.enqueue(RBCoordinate(0, 0));
         sleep(1);
     }
     PRINTF_THREAD_STAMP("Catch termination flag, exit thread\n");
