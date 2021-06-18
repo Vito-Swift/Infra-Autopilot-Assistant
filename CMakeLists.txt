@@ -11,6 +11,8 @@ message(${CMAKE_CURRENT_SOURCE_DIR})
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 find_package(Boost REQUIRED regex date_time system)
 include_directories(${BOOST_INCLUDE_DIRS})
 message("boost lib: ${Boost_LIBRARIES}")
@@ -71,7 +73,8 @@ add_executable(LamppostHost
 target_link_libraries(LamppostHost
         btp
         ipc
-        ${Boost_LIBRARIES})
+        ${Boost_LIBRARIES}
+        Threads::Threads)
 target_include_directories(LamppostHost
         PRIVATE include
         PRIVATE pthread)

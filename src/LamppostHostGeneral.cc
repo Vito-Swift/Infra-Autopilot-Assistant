@@ -165,10 +165,18 @@ void lamppost_program_init(LamppostHostProg *lamppostProg, int argc, char **argv
 void lamppost_program_run(LamppostHostProg *lamppostProg) {
     signal(SIGINT, interrupt_handler);
 
-    int term_flag = 1;
+    int term_flag = 0;
 
     // launch thread to detect from video stream
-    PRINTF_STAMP("Launch thread to detect road blocks...\n");
+    RBDetectionThreadArgs_t detection_args{.hostProg = lamppostProg};
+    if (lamppostProg->options.mock_detection) {
+        PRINTF_STAMP("Launch mock thread to detect road blocks...\n");
+        pthread_create(&lamppostProg->detection_thread, nullptr, RBDetectionMockThread, (void *) &detection_args);
+    } else {
+        PRINTF_STAMP("Launch thread to detect road blocks...\n");
+        pthread_create(&lamppostProg->detection_thread, nullptr, RBDetectionThread, (void *) &detection_args);
+    }
+    pthread_detach(lamppostProg->detection_thread);
 
     // launch thread to send coordinates of detected road block to root node
     PRINTF_STAMP("Launch thread to communicate with root node...\n");

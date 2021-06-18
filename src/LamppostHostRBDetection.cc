@@ -8,10 +8,14 @@
 
 #include "LamppostHostRBDetection.hh"
 
-void RBDetectionThreads() {
-#ifdef MOCK
+void* RBDetectionThread(void *vargp) {
+    auto args = (RBDetectionThreadArgs_t *) vargp;
+}
 
-#else
-    // do the real road block detection
-#endif
+void* RBDetectionMockThread(void* vargp) {
+    auto args = (RBDetectionThreadArgs_t*) vargp;
+    while (true) {
+        PRINTF_THREAD_STAMP("Mock add RBCoordinate into queue\n");
+        sleep(1);
+    }
 }

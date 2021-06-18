@@ -58,13 +58,13 @@ typedef struct {
     std::vector<RBCoordinate> RoadBlockCoordinates;
 } LamppostHostProg;
 
-inline void print_usage(char *prg_name) {
+inline void print_usage(const char *prg_name) {
     printf("\n"
            "Usage: %s [OPTIONS]                 \n"
            "\n"
            "Options:                                      \n"
            "                                              \n"
-           "    --config_path [CONFIG_FILE]               \n"
+           "    --config_file [CONFIG_FILE]               \n"
            "                    Path to configuration file\n"
            "    --mock_detection                          \n"
            "                    Mock roadblock detection by\n"
@@ -73,7 +73,7 @@ inline void print_usage(char *prg_name) {
            "                                                \n"
            "                                                \n"
            "Example:                                        \n"
-           "    > ./%s --config_path ../_config/lamp1.ini", prg_name);
+           "    > ./%s --config_file ../_config/lamp1.ini", prg_name, prg_name);
 }
 
 #endif //LAMPPOSTAUTOCARDEMO_LAMPPOSTHOSTUTILS_HH

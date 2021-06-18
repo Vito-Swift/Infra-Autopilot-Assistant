@@ -98,6 +98,16 @@ double get_timestamp();
         funlockfile(stdout); \
     } while(0)
 
+#define PRINTF_THREAD_STAMP(format, ...) \
+    do { \
+        flockfile(stdout); \
+        printf("%12.2f - ", get_timestamp()); \
+        printf("%s: \t", __FUNCTION__);     \
+        printf(format, ##__VA_ARGS__); \
+        fflush(stdout); \
+        funlockfile(stdout); \
+    } while(0)
+
 /* print error msg to stderr */
 #define PRINTF_ERR(format, ...) \
     do { \

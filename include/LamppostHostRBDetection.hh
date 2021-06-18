@@ -15,6 +15,7 @@ typedef struct RBDetectionThreadArgs {
     LamppostHostProg* hostProg;
 } RBDetectionThreadArgs_t;
 
-void RBDetectionThread(RBDetectionThreadArgs_t* args);
+void* RBDetectionThread(void* vargp);
+void* RBDetectionMockThread(void* vargp);
 
 #endif //LAMPPOSTAUTOCARDEMO_LAMPPOSTHOSTRBDETECTION_HH
