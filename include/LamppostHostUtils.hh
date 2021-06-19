@@ -58,20 +58,21 @@ typedef struct {
 
 inline void print_usage(const char *prg_name) {
     printf("\n"
-           "Usage: %s [OPTIONS]                 \n"
-           "\n"
-           "Options:                                      \n"
-           "                                              \n"
-           "    --config_file [CONFIG_FILE]               \n"
-           "                    Path to configuration file\n"
-           "    --mock_detection                          \n"
-           "                    Mock roadblock detection by\n"
+           "Usage: %s [OPTIONS]                             \n"
+           "                                                \n"
+           "Options:                                        \n"
+           "                                                \n"
+           "    --config_file [CONFIG_FILE]                 \n"
+           "                    Path to configuration file  \n"
+           "    --mock_detection                            \n"
+           "                    Mock roadblock detection by \n"
            "                    continually sending (0,0) to\n"
-           "                    root lamppost node"
+           "                    root lamppost node          \n"
            "                                                \n"
            "                                                \n"
            "Example:                                        \n"
-           "    > ./%s --config_file ../_config/lamp1.ini", prg_name, prg_name);
+           "    > ./%s --config_file ../_config/lamp1.ini   \n",
+           prg_name, prg_name);
 }
 
 #endif //LAMPPOSTAUTOCARDEMO_LAMPPOSTHOSTUTILS_HH
