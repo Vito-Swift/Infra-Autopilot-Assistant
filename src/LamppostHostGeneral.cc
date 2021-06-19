@@ -75,7 +75,7 @@ void parse_configuration_file(Options *options) {
     try {
         options->netaddr_str = GetPropertyTree<std::string>(pt, "Networking.LocalBATSAddr", true, nullptr);
         options->root_net_addr = GetPropertyTree<std::string>(pt, "Networking.RootBATSAddr", true, nullptr);
-        options->root_port = GetPropertyTree<uint32_t>(pt, "Networking.RootBATSPort", true, nullptr);
+        options->root_port = GetPropertyTree<int>(pt, "Networking.RootBATSPort", true, nullptr);
         bool is_root_node_def = false;
         options->is_root_node = GetPropertyTree<bool>(pt, "Networking.IsRootNode", false, &is_root_node_def);
     } catch (const std::invalid_argument &e) {
@@ -179,16 +179,22 @@ void lamppost_program_run(LamppostHostProg *lamppostProg) {
 
     // launch thread to send coordinates of detected road block to root node
     PRINTF_STAMP("Launch thread to communicate with root node...\n");
-    //pthread_create(&lamppostProg->send_thread, nullptr, )
+    SendThreadArgs_t sendThread_args{.hostProg = lamppostProg, .terminate_flag = &term_flag};
+    pthread_create(&lamppostProg->send_thread, nullptr, LamppostHostSendThread, (void *) &sendThread_args);
+    pthread_detach(lamppostProg->send_thread);
 
     // if the current node is root node, launch thread to manage received data from other nodes
     if (lamppostProg->options.is_root_node) {
-
+        PRINTF_STAMP("Launch thread to manage received data from slave nodes");
+        RecvThreadArgs_t recvThread_args{.hostProg = lamppostProg, .terminate_flag = &term_flag};
+        pthread_create(&lamppostProg->recv_thread, nullptr, LamppostHostRecvThread, (void *) &recvThread_args);
+        pthread_detach(lamppostProg->recv_thread);
     }
 
-    // if the current node is root node, launch thread to communicate with hook node
+    // TODO: if the current node is root node, launch thread to communicate with hook node
     if (lamppostProg->options.is_root_node) {
         PRINTF_STAMP("Launch thread to communicate with hook node as option.is_root_node is enabled...\n");
+
     }
 
     while (!term_flag) {

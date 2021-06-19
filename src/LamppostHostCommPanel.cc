@@ -43,7 +43,7 @@ void *LamppostHostSendThread(void *vargp) {
 
     if (packetSize < sizeof(LamppostBackbonePacket_t)) {
         PRINTF_THREAD_STAMP("Found Backbone Packet size is larger than the local data buffer size. Exit.\n");
-        args->terminate_flag = true;
+        *(args->terminate_flag) = true;
         return nullptr;
     }
 
@@ -51,7 +51,7 @@ void *LamppostHostSendThread(void *vargp) {
     socket.bind(BACKBONE_SEND_PORT_DEFAULT);
     PRINTF_THREAD_STAMP("BATS Socket has been initialized.\n");
 
-    while (!args->terminate_flag) {
+    while (!*(args->terminate_flag)) {
         // fill in databuf
         LamppostBackbonePacket_t tmp_packet;
         tmp_packet.src_addr = addr;
@@ -61,6 +61,8 @@ void *LamppostHostSendThread(void *vargp) {
         // send databuf to root node
         if (socket.send(dataBuf, dataLen, root_addr, root_port, param, BP_PROTOCOL_BTP) == -1) {
             PRINTF_ERR_STAMP("Send packet error: %s\n", std::strerror(errno));
+        } else {
+            PRINTF_THREAD_STAMP("Sent backbone packet to root node.\n");
         }
 
         usleep(BACKBONE_SEND_INTERVAL);
@@ -88,7 +90,7 @@ void *LamppostHostRecvThread(void *vargp) {
         char *dataBuf = SMALLOC(char, BACKBONE_PACKET_SIZE);
         int dataLen;
 
-        while (!args->terminate_flag) {
+        while (!*(args->terminate_flag)) {
             dataLen = socket.recv(dataBuf, BACKBONE_PACKET_SIZE);
             LamppostBackbonePacket_t tmp_packet;
             memcpy(&tmp_packet, dataBuf, sizeof(LamppostBackbonePacket_t));

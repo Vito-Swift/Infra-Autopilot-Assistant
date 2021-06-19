@@ -14,14 +14,14 @@
 
 typedef struct SendThreadArgs {
     LamppostHostProg *hostProg;
-    std::atomic<bool> terminate_flag;
+    std::atomic<bool> *terminate_flag;
 } SendThreadArgs_t;
 
 void *LamppostHostSendThread(void *vargp);
 
 typedef struct RecvThreadArgs {
     LamppostHostProg *hostProg;
-    std::atomic<bool> terminate_flag;
+    std::atomic<bool> *terminate_flag;
 } RecvThreadArgs_t;
 
 void *LamppostHostRecvThread(void *vargp);
