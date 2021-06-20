@@ -56,7 +56,7 @@ typedef struct {
     pthread_t recv_thread;
 
     Queue<RBCoordinate> RoadBlockCoordinates;
-    Queue<std::vector<RBCoordinate>> CollectedRBCoordinates;
+    Vector<RBCoordinate> CollectedRBCoordinates;
 } LamppostHostProg;
 
 inline void print_usage(const char *prg_name) {

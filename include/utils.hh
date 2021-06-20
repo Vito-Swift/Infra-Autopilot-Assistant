@@ -85,6 +85,32 @@ private:
     std::condition_variable c;
 };
 
+template<class T>
+class Vector {
+public:
+    Vector() : v(), m(), c() {}
+
+    ~Vector() {}
+
+    void push_back(T t) {
+        std::lock_guard<std::mutex> lock(m);
+        v.push_back(t);
+        c.notify_one();
+    }
+
+    T &operator[](int idx) {
+        std::lock_guard<std::mutex> lock(m);
+        T _ = v[idx];
+        c.notify_one();
+        return _;
+    }
+
+private:
+    std::vector<T> v;
+    mutable std::mutex m;
+    std::condition_variable c;
+};
+
 /*  ********************************************************
  *                 Misc Utilities
  * *********************************************************/

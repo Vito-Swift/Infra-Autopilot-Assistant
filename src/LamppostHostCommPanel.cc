@@ -104,6 +104,8 @@ void *LamppostHostRecvThread(void *vargp) {
             LamppostBackbonePacket_t tmp_packet;
             memcpy(&tmp_packet, dataBuf, sizeof(LamppostBackbonePacket_t));
             PRINTF_THREAD_STAMP("Receive data from lamppost: %d\n", tmp_packet.src_addr);
+
+            // Enqueue data into collected Roadblock Coordinates
         }
     } else {
         // launch slave program, receive terminate flag from root node
@@ -137,7 +139,7 @@ void *LamppostHostCommHookSendThread(void *vargp) {
 
     char *dataBuf = SMALLOC(char, HOOK_PACKET_SIZE);
 
-    // Try connect to hook program
+    // Try to connect hook program
     while (connect(sockfd, (struct sockaddr *) &hook_addr_comp, sizeof(hook_addr_comp)) < 0) {
         PRINTF_THREAD_STAMP("Cannot connect to, retry after %d seconds...\n", HOOK_CONN_RETRY_INTERVAL);
         sleep(1);
@@ -146,7 +148,7 @@ void *LamppostHostCommHookSendThread(void *vargp) {
 
     while (!(args->terminate_flag)) {
         PRINTF_THREAD_STAMP("Communicating with hook node...\n");
-        
+
         sleep(HOOK_PACKET_INTERVAL);
     }
 }
