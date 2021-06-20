@@ -13,6 +13,10 @@
 #define BACKBONE_SEND_PORT_DEFAULT 201
 #define BACKBONE_RECV_PORT_DEFAULT 200
 #define BACKBONE_SEND_INTERVAL 100UL
+#define HOOK_PACKET_SIZE 100000UL
+#define HOOK_CONN_RETRY_INTERVAL 1
+#define HOOK_MAX_COORD_NUM 20UL
+#define HOOK_PACKET_INTERVAL 1
 
 using namespace BATSProtocol;
 
@@ -21,6 +25,11 @@ typedef struct LamppostBackbonePacket {
     uint32_t src_addr;
     bool _terminate;
 } LamppostBackbonePacket_t;
+
+typedef struct HookPacket {
+    RBCoordinate coords[HOOK_MAX_COORD_NUM];
+    uint32_t flag;
+} HookPacket_t;
 
 void *LamppostHostSendThread(void *vargp) {
     auto args = (SendThreadArgs_t *) vargp;
@@ -103,6 +112,41 @@ void *LamppostHostRecvThread(void *vargp) {
     PRINTF_THREAD_STAMP("Catch termination flag, exit thread\n");
 }
 
-void LamppostHostCommHookPan(LamppostHostProg *prog) {
+void *LamppostHostCommHookSendThread(void *vargp) {
+    auto args = (HookSendThreadArgs_t *) vargp;
+    auto hook_addr_str = args->hostProg->options.hook_ip_addr.c_str();
+    auto hook_port = args->hostProg->options.hook_ip_port;
 
+    // Create socket
+    int sockfd;
+    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        PRINTF_ERR_STAMP("Create hook socket error. Should exit.\n");
+        *(args->terminate_flag) = true;
+        return nullptr;
+    }
+
+    // Assign IP Address and Port
+    struct sockaddr_in hook_addr_comp;
+    hook_addr_comp.sin_family = AF_INET;
+    hook_addr_comp.sin_port = htons(hook_port);
+    if (inet_pton(AF_INET, hook_addr_str, &hook_addr_comp.sin_addr) <= 0) {
+        PRINTF_ERR_STAMP("Invalid hook program address is provided. Should exit.\n");
+        *(args->terminate_flag) = true;
+        return nullptr;
+    }
+
+    char *dataBuf = SMALLOC(char, HOOK_PACKET_SIZE);
+
+    // Try connect to hook program
+    while (connect(sockfd, (struct sockaddr *) &hook_addr_comp, sizeof(hook_addr_comp)) < 0) {
+        PRINTF_THREAD_STAMP("Cannot connect to, retry after %d seconds...\n", HOOK_CONN_RETRY_INTERVAL);
+        sleep(1);
+    }
+    PRINTF_THREAD_STAMP("Connected to hook node, start sending coordinates and control flags.\n");
+
+    while (!(args->terminate_flag)) {
+        PRINTF_THREAD_STAMP("Communicating with hook node...\n");
+        
+        sleep(HOOK_PACKET_INTERVAL);
+    }
 }
