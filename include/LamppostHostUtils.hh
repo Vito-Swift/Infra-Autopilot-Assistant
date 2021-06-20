@@ -20,6 +20,8 @@ typedef struct {
     std::string netaddr_str;            // bats network address of local node   (required)
     std::string root_net_addr;          // bats network address of root node    (required)
     int root_port;                      // bats port of root node               (required)
+    std::string hook_ip_addr;           // IP address of hook node              (set only when launch on root)
+    int hook_ip_port;                   // Listen port of hook node             (set only when launch on root)
     int ctrl_zigbee_pan;                // zigbee pan of control node           (set only when launch on root)
     int ctrl_zigbee_addr;               // zigbee net address of control node   (set only when launch on root)
     int root_zigbee_pan;                // zigbee pan of root lamppost          (set only when launch on root)
@@ -54,6 +56,7 @@ typedef struct {
     pthread_t recv_thread;
 
     Queue<RBCoordinate> RoadBlockCoordinates;
+    Queue<std::vector<RBCoordinate>> CollectedRBCoordinates;
 } LamppostHostProg;
 
 inline void print_usage(const char *prg_name) {

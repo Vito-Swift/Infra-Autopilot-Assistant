@@ -11,6 +11,9 @@
 
 #include "LamppostHostUtils.hh"
 #include <atomic>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 
 typedef struct SendThreadArgs {
     LamppostHostProg *hostProg;
@@ -25,5 +28,12 @@ typedef struct RecvThreadArgs {
 } RecvThreadArgs_t;
 
 void *LamppostHostRecvThread(void *vargp);
+
+typedef struct HookSendThreadArgs {
+    LamppostHostProg *hostProg;
+    std::atomic<bool> *terminate_flag;
+} HookSendThreadArgs_t;
+
+void *LamppostHostCommHookSendThread(void* vargp);
 
 #endif //LAMPPOSTAUTOCARDEMO_LAMPPOSTHOSTCOMMPANEL_HH
