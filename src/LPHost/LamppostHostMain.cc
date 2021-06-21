@@ -6,7 +6,7 @@
  * @date: 4/16/2021
  */
 
-#include "LamppostHostGeneral.hh"
+#include "LPHost/LamppostHostGeneral.hh"
 
 int main(int argc, char **argv) {
     LamppostHostProg prog;

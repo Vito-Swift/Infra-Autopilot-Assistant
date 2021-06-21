@@ -30,7 +30,21 @@
 #include <string>
 #include <regex>
 
+
+/*  ********************************************************
+ *                 Definitions
+ * *********************************************************/
+
+#define BACKBONE_PACKET_SIZE 3000UL
+#define BACKBONE_SEND_PORT_DEFAULT 201
+#define BACKBONE_RECV_PORT_DEFAULT 200
+#define BACKBONE_SEND_INTERVAL 100UL
 #define HOOK_TCP_PORT 1020
+#define HOOK_MAX_PACKET_SIZE 100000UL
+#define HOOK_CONN_RETRY_INTERVAL 1
+#define HOOK_MAX_COORD_NUM 20UL
+#define HOOK_PACKET_INTERVAL 1
+#define RB_SEGMENT_THRESHOLD 1
 
 /*  ********************************************************
  *                 Data Structures
@@ -49,6 +63,26 @@ typedef struct RBCoordinate {
 
     RBCoordinate() : gps_x(0), gps_y(0) {}
 } RBCoordinate;
+
+typedef struct LamppostBackbonePacket {
+    RBCoordinate coord;
+    uint32_t src_addr;
+    bool _terminate;
+} LamppostBackbonePacket_t;
+
+typedef struct HookPacket {
+    // RB Coordinates
+    RBCoordinate coords[HOOK_MAX_COORD_NUM];
+    int coords_num;
+
+    // Zigbee Parameters
+    int ctrl_zigbee_pan;
+    int ctrl_zigbee_addr;
+    int root_zigbee_pan;
+    int root_zigbee_addr;
+
+    uint32_t flag;
+} HookPacket_t;
 
 /**
  * Class: Queue
