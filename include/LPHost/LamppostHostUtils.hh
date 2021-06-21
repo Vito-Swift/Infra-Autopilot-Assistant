@@ -10,6 +10,8 @@
 #include <getopt.h>
 #include <atomic>
 #include <math.h>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
 
 /**
  * Type: Options
@@ -55,9 +57,13 @@ typedef struct {
     // thread to launch communicator
     pthread_t send_thread;
     pthread_t recv_thread;
+    // thread to launch hook communicator
+    pthread_t hook_thread;
 
+    // Queue to store the coordinates of detected road blocks
     Queue<RBCoordinate> RoadBlockCoordinates;
 
+    // Array to store the received coordinates (on root program)
     Vector<RBCoordinate> CollectedRBCoordinates;
     mutable std::mutex crb_mutex;
     std::condition_variable crb_c;
@@ -82,14 +88,31 @@ inline void print_usage(const char *prg_name) {
            prg_name, prg_name);
 }
 
-#ifndef pow2C
-double __tmpDouble__;
-#define pow2C(a) ((__tmpDouble__=(a))*(__tmpDouble__))
-#endif
 
 inline double calculateDistance(const RBCoordinate &c1, const RBCoordinate &c2) {
-    double d = pow2C(c1.gps_x - c2.gps_x) + pow2C(c1.gps_y - c2.gps_y);
+    double d = pow(c1.gps_x - c2.gps_x, 2) + pow(c1.gps_y - c2.gps_y, 2);
     return sqrt(d);
+}
+
+
+template<typename T>
+inline T
+GetPropertyTree(const boost::property_tree::ptree &pt, const std::string entry, bool is_required, T *default_val) {
+    if (!pt.get_optional<T>(entry).is_initialized()) {
+        // Entry does not exist in property tree
+        if (is_required) {
+            EXIT_WITH_MSG("Get entry from configuration file error: %s is required but does not exist.\n",
+                          entry.c_str());
+        }
+        if (default_val == nullptr) {
+            EXIT_WITH_MSG("Failed to complete non-exist entry %s with default value.\n", entry.c_str());
+        } else {
+            PRINTF_STAMP("\t\tEntry %s does not exist, complete with default value.\n", entry.c_str());
+            return *default_val;
+        }
+    } else {
+        return pt.get<T>(entry);
+    }
 }
 
 #endif //LAMPPOSTAUTOCARDEMO_LAMPPOSTHOSTUTILS_HH

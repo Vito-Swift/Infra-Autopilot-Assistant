@@ -6,10 +6,7 @@
  * @date: 5/27/2021
  */
 
-#include "LamppostHostGeneral.hh"
-
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ini_parser.hpp>
+#include "LPHost/LamppostHostGeneral.hh"
 
 std::atomic<bool> term_flag;
 LamppostHostProg *globalHostProg;
@@ -46,26 +43,6 @@ bool options_validate(Options *options) {
     return true;
 }
 
-template<typename T>
-inline T
-GetPropertyTree(const boost::property_tree::ptree &pt, const std::string entry, bool is_required, T *default_val) {
-    if (!pt.get_optional<T>(entry).is_initialized()) {
-        // Entry does not exist in property tree
-        if (is_required) {
-            EXIT_WITH_MSG("Get entry from configuration file error: %s is required but does not exist.\n",
-                          entry.c_str());
-        }
-        if (default_val == nullptr) {
-            EXIT_WITH_MSG("Failed to complete non-exist entry %s with default value.\n", entry.c_str());
-        } else {
-            PRINTF_STAMP("\t\tEntry %s does not exist, complete with default value.\n", entry.c_str());
-            return *default_val;
-        }
-    } else {
-        return pt.get<T>(entry);
-    }
-}
-
 void parse_configuration_file(Options *options) {
     PRINTF_STAMP("Reading configuration file: %s\n", options->config_file_path);
     boost::property_tree::ptree pt;
@@ -87,7 +64,7 @@ void parse_configuration_file(Options *options) {
     }
 
     if (options->is_root_node) {
-        // Parse Robot Section
+        // TODO: Parse Robot Section
         try {
 
         } catch (const std::invalid_argument &e) {
@@ -96,7 +73,14 @@ void parse_configuration_file(Options *options) {
             exit(1);
         }
 
-        // Parse Hook Section
+        std::string default_hook_addr("192.168.1.1"); // The default IP address of RaspberryPI
+        int default_hook_port = HOOK_TCP_PORT;
+        options->hook_ip_addr = GetPropertyTree<std::string>(pt, "Hook.HookAddr", false, &default_hook_addr);
+        options->hook_ip_port = GetPropertyTree<int>(pt, "Hook.HookPort", false, &default_hook_port);
+        options->ctrl_zigbee_addr = GetPropertyTree<int>(pt, "Hook.CtrlZigbeeAddr", true, nullptr);
+        options->ctrl_zigbee_pan = GetPropertyTree<int>(pt, "Hook.CtrlZigbeePan", true, nullptr);
+        options->root_zigbee_addr = GetPropertyTree<int>(pt, "Hook.RootZigbeeAddr", true, nullptr);
+        options->root_zigbee_pan = GetPropertyTree<int>(pt, "Hook.RootZigbeePan", true, nullptr);
     }
 }
 
@@ -191,10 +175,11 @@ void lamppost_program_run(LamppostHostProg *lamppostProg) {
         pthread_detach(lamppostProg->recv_thread);
     }
 
-    // TODO: if the current node is root node, launch thread to communicate with hook node
     if (lamppostProg->options.is_root_node) {
         PRINTF_STAMP("Launch thread to communicate with hook node as option.is_root_node is enabled...\n");
-
+        HookSendThreadArgs_t hookSendThreadArgs{.hostProg=lamppostProg, .terminate_flag=&term_flag};
+        pthread_create(&lamppostProg->hook_thread, nullptr, LamppostHostCommHookSendThread, (void *) &sendThread_args);
+        pthread_detach(lamppostProg->hook_thread);
     }
 
     while (!term_flag) {

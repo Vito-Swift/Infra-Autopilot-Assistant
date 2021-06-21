@@ -45,10 +45,10 @@ add_library(DRIVER_LIB SHARED ${DRIVER_SRCS} ${DRIVER_INCLUDE})
 # Exec: Build Control Node Program
 ################################################################
 add_executable(ControlNodeMain
-        src/CN_Main.cc
-        src/CN_CommPanel.cc
-        include/CN_CommPanel.hh
-        include/CN_General.hh)
+        src/Control/CtrlMain.cc
+        src/Control/CtrlCommPanel.cc
+        include/CtrlCommPanel.hh
+        include/CtrlGeneral.hh)
 target_link_libraries(ControlNodeMain DRIVER_LIB)
 target_include_directories(ControlNodeMain
         PRIVATE driver
@@ -60,15 +60,15 @@ target_include_directories(ControlNodeMain
 # Exec: Build Lamppost Host Program
 ################################################################
 add_executable(LamppostHost
-        src/LamppostHostMain.cc
-        src/LamppostHostGeneral.cc
-        src/LamppostHostRBDetection.cc
-        src/LamppostHostCommPanel.cc
+        src/LPHost/LamppostHostMain.cc
+        src/LPHost/LamppostHostGeneral.cc
+        src/LPHost/LamppostHostRBDetection.cc
+        src/LPHost/LamppostHostCommPanel.cc
         src/utils.cc
-        include/LamppostHostCommPanel.hh
-        include/LamppostHostGeneral.hh
-        include/LamppostHostRBDetection.hh
-        include/LamppostHostUtils.hh
+        include/LPHost/LamppostHostCommPanel.hh
+        include/LPHost/LamppostHostGeneral.hh
+        include/LPHost/LamppostHostRBDetection.hh
+        include/LPHost/LamppostHostUtils.hh
         include/utils.hh)
 target_link_libraries(LamppostHost
         btp
@@ -78,3 +78,14 @@ target_link_libraries(LamppostHost
 target_include_directories(LamppostHost
         PRIVATE include
         PRIVATE pthread)
+
+################################################################
+# Exec: Build Lamppost Hook Program
+################################################################
+add_executable(LamppostHook
+        src/LPHook/LamppostHookMain.cc
+        src/LPHook/LamppostHookCommPanel.cc
+        src/LPHook/LamppostHookGeneral.cc
+        src/utils.cc
+        include/LPHook/LamppostHookCommPanel.hh
+        include/LPHook/LamppostHookGeneral.hh)

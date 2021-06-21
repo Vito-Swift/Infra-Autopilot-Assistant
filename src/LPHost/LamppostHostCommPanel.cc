@@ -6,32 +6,10 @@
  * @date: 4/16/2021
  */
 
-#include "LamppostHostCommPanel.hh"
+#include "LPHost/LamppostHostCommPanel.hh"
 #include <BATSSocket.h>
 
-#define BACKBONE_PACKET_SIZE 3000UL
-#define BACKBONE_SEND_PORT_DEFAULT 201
-#define BACKBONE_RECV_PORT_DEFAULT 200
-#define BACKBONE_SEND_INTERVAL 100UL
-#define HOOK_PACKET_SIZE 100000UL
-#define HOOK_CONN_RETRY_INTERVAL 1
-#define HOOK_MAX_COORD_NUM 20UL
-#define HOOK_PACKET_INTERVAL 1
-#define RB_SEGMENT_THRESHOLD 1
-
 using namespace BATSProtocol;
-
-typedef struct LamppostBackbonePacket {
-    RBCoordinate coord;
-    uint32_t src_addr;
-    bool _terminate;
-} LamppostBackbonePacket_t;
-
-typedef struct HookPacket {
-    RBCoordinate coords[HOOK_MAX_COORD_NUM];
-    int coords_num;
-    uint32_t flag;
-} HookPacket_t;
 
 void *LamppostHostSendThread(void *vargp) {
     auto args = (SendThreadArgs_t *) vargp;
@@ -74,7 +52,7 @@ void *LamppostHostSendThread(void *vargp) {
         if (socket.send(dataBuf, dataLen, root_addr, root_port, param, BP_PROTOCOL_BTP) == -1) {
             PRINTF_ERR_STAMP("Send packet error: %s\n", std::strerror(errno));
         } else {
-            PRINTF_THREAD_STAMP("Sent backbone packet to root node.\n");
+            PRINTF_THREAD_STAMP("Sent 1 backbone packet to root node.\n");
         }
 
         usleep(BACKBONE_SEND_INTERVAL);
@@ -129,7 +107,7 @@ void *LamppostHostRecvThread(void *vargp) {
             args->hostProg->crb_c.notify_one();
         }
     } else {
-        // launch slave program, receive terminate flag from root node
+        // TODO: launch slave program, receive terminate flag from root node
 
     }
     PRINTF_THREAD_STAMP("Catch termination flag, exit thread\n");
@@ -165,7 +143,7 @@ void *LamppostHostCommHookSendThread(void *vargp) {
         return nullptr;
     }
 
-    char *dataBuf = SMALLOC(char, HOOK_PACKET_SIZE);
+    char *dataBuf = SMALLOC(char, HOOK_MAX_PACKET_SIZE);
 
     // Try to connect hook program
     while (connect(sockfd, (struct sockaddr *) &hook_addr_comp, sizeof(hook_addr_comp)) < 0) {
@@ -175,7 +153,7 @@ void *LamppostHostCommHookSendThread(void *vargp) {
     PRINTF_THREAD_STAMP("Connected to hook node, start sending coordinates and control flags.\n");
 
     while (!(args->terminate_flag)) {
-        memset(dataBuf, 0, HOOK_PACKET_SIZE);
+        memset(dataBuf, 0, HOOK_MAX_PACKET_SIZE);
         sleep(HOOK_PACKET_INTERVAL);
         if (args->hostProg->CollectedRBCoordinates.size() > HOOK_MAX_COORD_NUM) {
             PRINTF_ERR_STAMP("Error: Collected roadblocks exceeds the supported max num.\n");
@@ -187,13 +165,20 @@ void *LamppostHostCommHookSendThread(void *vargp) {
         // Load content of collected RBCoordinates into send buffer
         HookPacket_t tmp_packet;
         memset(&tmp_packet, 0, sizeof(tmp_packet));
+        tmp_packet.ctrl_zigbee_pan = args->hostProg->options.ctrl_zigbee_pan;
+        tmp_packet.ctrl_zigbee_addr = args->hostProg->options.ctrl_zigbee_addr;
+        tmp_packet.root_zigbee_pan = args->hostProg->options.root_zigbee_pan;
+        tmp_packet.root_zigbee_addr = args->hostProg->options.root_zigbee_addr;
+        tmp_packet.flag = *(args->terminate_flag);
+
         std::lock_guard<std::mutex> sendlock(args->hostProg->crb_mutex);
         tmp_packet.coords_num = args->hostProg->CollectedRBCoordinates.size();
         for (int i = 0; i < tmp_packet.coords_num; i++) {
             tmp_packet.coords[i] = args->hostProg->CollectedRBCoordinates[i];
         }
         args->hostProg->crb_c.notify_one();
-        send(sockfd, dataBuf, HOOK_PACKET_SIZE, 0);
+        memcpy(dataBuf, &tmp_packet, sizeof(HookPacket_t));
+        send(sockfd, dataBuf, HOOK_MAX_PACKET_SIZE, 0);
         PRINTF_THREAD_STAMP("Sent 1 packet to hook node.\n");
     }
 }
