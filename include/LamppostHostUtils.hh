@@ -9,6 +9,7 @@
 
 #include <getopt.h>
 #include <atomic>
+#include <math.h>
 
 /**
  * Type: Options
@@ -56,7 +57,10 @@ typedef struct {
     pthread_t recv_thread;
 
     Queue<RBCoordinate> RoadBlockCoordinates;
-    Queue<std::vector<RBCoordinate>> CollectedRBCoordinates;
+
+    Vector<RBCoordinate> CollectedRBCoordinates;
+    mutable std::mutex crb_mutex;
+    std::condition_variable crb_c;
 } LamppostHostProg;
 
 inline void print_usage(const char *prg_name) {
@@ -76,6 +80,16 @@ inline void print_usage(const char *prg_name) {
            "Example:                                        \n"
            "    > ./%s --config_file ../_config/lamp1.ini   \n",
            prg_name, prg_name);
+}
+
+#ifndef pow2C
+double __tmpDouble__;
+#define pow2C(a) ((__tmpDouble__=(a))*(__tmpDouble__))
+#endif
+
+inline double calculateDistance(const RBCoordinate &c1, const RBCoordinate &c2) {
+    double d = pow2C(c1.gps_x - c2.gps_x) + pow2C(c1.gps_y - c2.gps_y);
+    return sqrt(d);
 }
 
 #endif //LAMPPOSTAUTOCARDEMO_LAMPPOSTHOSTUTILS_HH
