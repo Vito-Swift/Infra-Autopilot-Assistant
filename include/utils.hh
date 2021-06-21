@@ -100,9 +100,13 @@ public:
 
     T &operator[](int idx) {
         std::lock_guard<std::mutex> lock(m);
-        T _ = v[idx];
+        T &_ = v[idx];
         c.notify_one();
         return _;
+    }
+
+    int size() {
+        return v.size();
     }
 
 private:
