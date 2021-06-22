@@ -88,4 +88,13 @@ add_executable(LamppostHook
         src/LPHook/LamppostHookGeneral.cc
         src/utils.cc
         include/LPHook/LamppostHookCommPanel.hh
-        include/LPHook/LamppostHookGeneral.hh)
+        include/LPHook/LamppostHookGeneral.hh
+        include/LPHook/LamppostHookUtils.hh)
+target_link_libraries(LamppostHook
+        DRIVER_LIB
+        ${Boost_LIBRARIES}
+        Threads::Threads)
+target_include_directories(LamppostHook
+        PRIVATE driver
+        PRIVATE include
+        PRIVATE pthread)

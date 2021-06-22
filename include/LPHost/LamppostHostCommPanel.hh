@@ -9,11 +9,12 @@
 #ifndef LAMPPOSTAUTOCARDEMO_LAMPPOSTHOSTCOMMPANEL_HH
 #define LAMPPOSTAUTOCARDEMO_LAMPPOSTHOSTCOMMPANEL_HH
 
-#include "LamppostHostUtils.hh"
 #include <atomic>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+
+#include "LamppostHostUtils.hh"
 
 typedef struct SendThreadArgs {
     LamppostHostProg *hostProg;

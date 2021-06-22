@@ -15,10 +15,7 @@ void interrupt_handler(int dummy) {
     PRINTF_STAMP("Catch CTRL-C signal.\n");
     PRINTF_STAMP("Terminate detached threads and exit.\n");
     term_flag = true;
-    pthread_exit(&globalHostProg->detection_thread);
-    pthread_exit(&globalHostProg->send_thread);
-    pthread_exit(&globalHostProg->recv_thread);
-    lamppost_program_exit(globalHostProg);
+    pthread_exit(nullptr);
 }
 
 static inline void copy_opt(char **str, char *optarg) {
