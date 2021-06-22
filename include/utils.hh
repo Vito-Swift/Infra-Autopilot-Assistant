@@ -29,22 +29,34 @@
 #include <assert.h>
 #include <string>
 #include <regex>
-
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
 
 /*  ********************************************************
  *                 Definitions
  * *********************************************************/
 
+// default values for Backbone BATS network configuration
 #define BACKBONE_PACKET_SIZE 3000UL
 #define BACKBONE_SEND_PORT_DEFAULT 201
 #define BACKBONE_RECV_PORT_DEFAULT 200
 #define BACKBONE_SEND_INTERVAL 100UL
+
+// default values for Hook tcp network configuration
 #define HOOK_TCP_PORT 1020
 #define HOOK_MAX_PACKET_SIZE 100000UL
 #define HOOK_CONN_RETRY_INTERVAL 1
 #define HOOK_MAX_COORD_NUM 20UL
 #define HOOK_PACKET_INTERVAL 1
+
+// defines for road blocks detections
 #define RB_SEGMENT_THRESHOLD 1
+
+// default values for Zigbee network configuration
+#define ZIGBEE_CTRL_PAN 1
+#define ZIGBEE_CTRL_ADDR 50
+#define ZIGBEE_ROOT_PAN 1
+#define ZIGBEE_ROOT_ADDR 51
 
 /*  ********************************************************
  *                 Data Structures
@@ -305,6 +317,26 @@ inline uint32_t parseNetAddrStr(const std::string &netAddrStr) {
     addr |= addr_2 << 8;
     addr |= addr_3;
     return addr;
+}
+
+template<typename T>
+inline T
+GetPropertyTree(const boost::property_tree::ptree &pt, const std::string entry, bool is_required, T *default_val) {
+    if (!pt.get_optional<T>(entry).is_initialized()) {
+        // Entry does not exist in property tree
+        if (is_required) {
+            EXIT_WITH_MSG("Get entry from configuration file error: %s is required but does not exist.\n",
+                          entry.c_str());
+        }
+        if (default_val == nullptr) {
+            EXIT_WITH_MSG("Failed to complete non-exist entry %s with default value.\n", entry.c_str());
+        } else {
+            PRINTF_STAMP("\t\tEntry %s does not exist, complete with default value.\n", entry.c_str());
+            return *default_val;
+        }
+    } else {
+        return pt.get<T>(entry);
+    }
 }
 
 #endif //LAMPPOSTAUTOCARDEMO_UTILS_HH

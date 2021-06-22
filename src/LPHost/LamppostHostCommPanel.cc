@@ -7,6 +7,7 @@
  */
 
 #include "LPHost/LamppostHostCommPanel.hh"
+
 #include <BATSSocket.h>
 
 using namespace BATSProtocol;
