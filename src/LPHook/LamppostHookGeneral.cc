@@ -62,13 +62,33 @@ void options_free(Options *options) {
 }
 
 void hook_program_init(HookProg *prog, int argc, char **argv) {
-
+    options_init(&prog->options);
+    options_parse(&prog->options, argc, argv);
+    term_flag = false;
+    globalHookProg = prog;
 }
 
 void hook_program_run(HookProg *prog) {
+    signal(SIGINT, interrupt_handler);
 
+    // launch thread to receive hook packet from host program
+    PRINTF_STAMP("Launch thread to receive hook packet from host program...\n");
+    HookRecvArgs_t recvThread_args{.port=prog->options.hook_ip_port,
+            .PacketQueue=&prog->PacketQueue,
+            .termination_flag=&term_flag};
+    pthread_create(&prog->recv_thread, nullptr, HookRecvThread, (void *) &recvThread_args);
+    pthread_detach(prog->recv_thread);
+
+    // launch thread to send RBCoordinates to control node
+    PRINTF_STAMP("Launch thread to send RBCoordinates to control node...\n");
+
+    while (!term_flag) {
+        PRINTF_STAMP("Hook program is still alive...\n");
+        sleep(10);
+    }
 }
 
 void hook_program_exit(HookProg *prog) {
-
+    PRINTF_STAMP("Clean and exit.\n");
+    options_free(&prog->options);
 }

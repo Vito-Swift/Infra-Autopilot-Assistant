@@ -29,6 +29,7 @@
 #include <assert.h>
 #include <string>
 #include <regex>
+#include <fcntl.h>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 
@@ -339,4 +340,18 @@ GetPropertyTree(const boost::property_tree::ptree &pt, const std::string entry, 
     }
 }
 
+bool SetSocketBlockingEnabled(int fd, bool blocking)
+{
+    if (fd < 0) return false;
+
+#ifdef _WIN32
+    unsigned long mode = blocking ? 0 : 1;
+   return (ioctlsocket(fd, FIONBIO, &mode) == 0) ? true : false;
+#else
+    int flags = fcntl(fd, F_GETFL, 0);
+    if (flags == -1) return false;
+    flags = blocking ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK);
+    return (fcntl(fd, F_SETFL, flags) == 0) ? true : false;
+#endif
+}
 #endif //LAMPPOSTAUTOCARDEMO_UTILS_HH

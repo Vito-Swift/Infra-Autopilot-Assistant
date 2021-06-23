@@ -107,6 +107,7 @@ void *LamppostHostRecvThread(void *vargp) {
             }
             args->hostProg->crb_c.notify_one();
         }
+        SFREE(dataBuf);
     } else {
         // TODO: launch slave program, receive terminate flag from root node
 
@@ -182,4 +183,5 @@ void *LamppostHostCommHookSendThread(void *vargp) {
         send(sockfd, dataBuf, HOOK_MAX_PACKET_SIZE, 0);
         PRINTF_THREAD_STAMP("Sent 1 packet to hook node.\n");
     }
+    SFREE(dataBuf);
 }
