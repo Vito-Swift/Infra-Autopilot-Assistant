@@ -187,6 +187,6 @@ void lamppost_program_run(LamppostHostProg *lamppostProg) {
 }
 
 void lamppost_program_exit(LamppostHostProg *lamppostProg) {
-    PRINTF_STAMP("Clean and exit.");
+    PRINTF_STAMP("Clean and exit.\n");
     options_free(&lamppostProg->options);
 }

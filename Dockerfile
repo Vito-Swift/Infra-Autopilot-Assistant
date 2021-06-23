@@ -103,7 +103,11 @@ RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
 && make -j4 && make install \
 && rm /${OPENCV_VERSION}.zip \
 && rm -r /opencv-${OPENCV_VERSION}
-
+ADD aruco /aruco
+WORKDIR /aruco
+RUN mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=../aruco_src && make -j4 && make install
+RUN echo "/usr/local/lib" >> /etc/ld.so.conf.d/aruco.conf && ldconfig
+WORKDIR /
 
 #############################################
 # Build and install batspro2

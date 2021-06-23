@@ -7,9 +7,15 @@ extern "C" {
 
 #include "CC2520.h"
 
-void CC2520_Send(unsigned char *buf, unsigned int len, unsigned int dev_id,
-                 unsigned short dst_pan_id, unsigned short dst_addr,
-                 unsigned short src_pan_id, unsigned short src_addr);
+typedef struct {
+    unsigned int dev_id;
+    unsigned short dst_pan_id;
+    unsigned short dst_addr;
+    unsigned short src_pan_id;
+    unsigned short src_addr;
+} CC2520_addr_t;
+
+void CC2520_Send(unsigned char *buf, unsigned int len, CC2520_addr_t* addr);
 
 #ifdef __cplusplus
 }
