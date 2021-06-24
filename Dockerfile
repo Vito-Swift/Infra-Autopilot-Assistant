@@ -73,7 +73,9 @@ RUN apt-get update \
         libpng-dev \
         libtiff-dev \
         libavformat-dev \
-        libpq-dev
+        libpq-dev \
+        libgtk2.0-dev \
+        pkg-config
 RUN apt install -y python3
 RUN apt install -y python3-pip
 RUN pip3 install numpy
@@ -115,7 +117,7 @@ WORKDIR /
 WORKDIR /bats-protocol-workdir
 RUN apt install -y libboost-all-dev
 RUN apt install -y iproute2
-RUN apt install -y htop net-tools iputils-ping
+RUN apt install -y htop net-tools iputils-ping vlc
 RUN DEBIAN_FRONTEND="noninteractive" apt install -y expect iperf3
 RUN git clone git@github.com:batsiot/batspro2
 RUN cd batspro2 && dpkg -i libbats-0.1.3-Linux-amd64.deb

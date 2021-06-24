@@ -13,8 +13,10 @@ docker-compose up -d $@
 
 # setting ffmpeg for video stream
 ffmpeg -f avfoundation \
-  -framerate 30 -video_size 320x240 \
-  -i "1:none" -vcodec libx265 \
-  -maxrate 2000k -fflags nobuffer -flags low_delay -preset ultrafast \
-  -strict experimental \
-  -f rtp_mpegts rtp://127.0.0.1:12345
+    -framerate 30 \
+    -video_size 320x240 \
+    -i "1:none" \
+    -vcodec mpeg4 \
+    -flags low_delay -preset ultrafast -strict experimental \
+    -f rtp_mpegts \
+    rtp://localhost:8000
