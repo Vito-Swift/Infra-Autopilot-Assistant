@@ -28,9 +28,9 @@ RUN sed  's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.s
 RUN echo "export VISIBLE=now" >> /etc/profile
 
 #############################################
-# Open ports
+# Open ports for SSH, debugger, and RTP
 #############################################
-EXPOSE 22 7777
+EXPOSE 22 7777 8000
 
 #############################################
 # Add debugger user for Clion Remote Dev
@@ -105,7 +105,7 @@ RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
 && rm -r /opencv-${OPENCV_VERSION}
 ADD aruco /aruco
 WORKDIR /aruco
-RUN mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=../aruco_src && make -j4 && make install
+RUN mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/ && make -j4 && make install
 RUN echo "/usr/local/lib" >> /etc/ld.so.conf.d/aruco.conf && ldconfig
 WORKDIR /
 
@@ -115,7 +115,7 @@ WORKDIR /
 WORKDIR /bats-protocol-workdir
 RUN apt install -y libboost-all-dev
 RUN apt install -y iproute2
-RUN apt install -y htop
+RUN apt install -y htop net-tools iputils-ping
 RUN DEBIAN_FRONTEND="noninteractive" apt install -y expect iperf3
 RUN git clone git@github.com:batsiot/batspro2
 RUN cd batspro2 && dpkg -i libbats-0.1.3-Linux-amd64.deb
@@ -135,12 +135,13 @@ RUN cd batspro2 && echo $'install (TARGETS btp ipc DESTINATION lib)\n\
 RUN sed -i 's/LOG_MSQ_MAX_MSGS\s16/LOG_MSQ_MAX_MSGS 10/g' batspro2/Utilities/BATSLogger/src/BATSLogger.h
 RUN cd batspro2 && mkdir build && cd build && cmake .. && make -j4 && make install
 
-
 #############################################
 # Enable SSH
 #############################################
 CMD ["/usr/sbin/sshd", "-D"]
 
+ADD ./.display /.display
+RUN cat /.display >> /etc/environment
 
 #############################################
 # Enable BATS network simulation
