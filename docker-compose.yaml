@@ -16,7 +16,7 @@ services:
         ports:
             - "7776:22"
             - "7777:7777"
-            - "8000:8000"
+            - "127.0.0.1:8000:8000/udp"
         volumes:
             - .:/home/debugger/code
         working_dir: /home/debugger/code
