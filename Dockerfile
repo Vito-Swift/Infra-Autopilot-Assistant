@@ -105,7 +105,7 @@ RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
 && make -j4 && make install \
 && rm /${OPENCV_VERSION}.zip \
 && rm -r /opencv-${OPENCV_VERSION}
-ADD aruco /aruco
+ADD 3rdparty/aruco /aruco
 WORKDIR /aruco
 RUN mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/ && make -j4 && make install
 RUN echo "/usr/local/lib" >> /etc/ld.so.conf.d/aruco.conf && ldconfig
@@ -143,6 +143,7 @@ RUN cd batspro2 && mkdir build && cd build && cmake .. && make -j4 && make insta
 CMD ["/usr/sbin/sshd", "-D"]
 
 ADD ./.display /.display
+RUN apt install -y pcl-tools
 RUN cat /.display >> /etc/environment
 
 #############################################
