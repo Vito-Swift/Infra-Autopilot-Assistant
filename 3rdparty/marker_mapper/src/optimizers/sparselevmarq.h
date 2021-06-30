@@ -376,15 +376,15 @@ do{
 }while(gain<=0 && ntries++<5);
 markermapper_debug_msg("Curr Error="<<currErr<<" AErr(prev-curr)="<<prevErr-currErr<<" gain="<<gain<<" dumping factor="<<mu,5);
 
-if (_verbose) std::cout<<std::setprecision(5) <<"Curr Error="<<currErr<<" AErr(prev-curr)="<<prevErr-currErr<<" gain="<<gain<<" dumping factor="<<mu<<std::endl;
+//if (_verbose) std::cout<<std::setprecision(5) <<"Curr Error="<<currErr<<" AErr(prev-curr)="<<prevErr-currErr<<" gain="<<gain<<" dumping factor="<<mu<<std::endl;
 //    //check if we must move to the new position or exit
 if ( currErr<prevErr)
 std::swap ( currErr,prevErr );
 
 
-if (0) {std::cerr<<" transpose="<<splm_get_time(t2,t1)<<" mult1="<< splm_get_time(t3,t2)<<" mult2="<< splm_get_time(t4,t3) <<std::endl;
+//if (0) {std::cerr<<" transpose="<<splm_get_time(t2,t1)<<" mult1="<< splm_get_time(t3,t2)<<" mult2="<< splm_get_time(t4,t3) <<std::endl;
           // std::cerr<<"solve="<<T(t4-t3)/T(CLOCKS_PER_SEC)<<std::endl;
-}
+//}
 return isStepAccepted;
 
 }
@@ -412,7 +412,7 @@ else{
     //intial error estimation
     int mustExit=0;
     for ( int i = 0; i < _maxIters && !mustExit; i++ ) {
-        if (_verbose)std::cerr<<"iteration "<<i<<"/"<<_maxIters<< "  ";
+        //if (_verbose)std::cerr<<"iteration "<<i<<"/"<<_maxIters<< "  ";
         bool isStepAccepted=step(f_z_x,f_J);
         //check if we must exit
         if ( currErr<_minErrorAllowed ) mustExit=1;
@@ -423,7 +423,7 @@ else{
         if (_step_callback) _step_callback(curr_z);
     }
 
-    std::cout<<"Exit code="<<mustExit<<std::endl;
+    //std::cout<<"Exit code="<<mustExit<<std::endl;
 }
 z=curr_z;
 return currErr;
