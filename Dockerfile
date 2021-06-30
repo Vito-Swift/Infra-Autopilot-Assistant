@@ -110,6 +110,11 @@ WORKDIR /aruco
 RUN mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/ && make -j4 && make install
 RUN echo "/usr/local/lib" >> /etc/ld.so.conf.d/aruco.conf && ldconfig
 WORKDIR /
+ADD 3rdparty/marker_mapper /marker_mapper
+WORKDIR /marker_mapper
+RUN mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local && make -j4 && make install
+RUN ldconfig
+WORKDIR /
 
 #############################################
 # Build and install batspro2

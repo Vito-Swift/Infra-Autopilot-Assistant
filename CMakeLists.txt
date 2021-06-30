@@ -47,8 +47,8 @@ add_library(DRIVER_LIB SHARED ${DRIVER_SRCS} ${DRIVER_INCLUDE})
 add_executable(ControlNodeMain
         src/Control/CtrlMain.cc
         src/Control/CtrlCommPanel.cc
-        include/CtrlCommPanel.hh
-        include/CtrlGeneral.hh)
+        include/Control/CtrlCommPanel.hh
+        include/Control/CtrlGeneral.hh)
 target_link_libraries(ControlNodeMain DRIVER_LIB)
 target_include_directories(ControlNodeMain
         PRIVATE driver
