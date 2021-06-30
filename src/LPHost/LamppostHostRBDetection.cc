@@ -6,7 +6,7 @@
  * @date: 5/27/2021
  */
 
-#include "LamppostHostRBDetection.hh"
+#include "LPHost/LamppostHostRBDetection.hh"
 
 void *RBDetectionThread(void *vargp) {
     auto args = (RBDetectionThreadArgs_t *) vargp;

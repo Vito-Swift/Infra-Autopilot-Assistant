@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "CtrlCommPanel.hh"
-#include "CtrlGeneral.hh"
+#include "Control/CtrlCommPanel.hh"
+#include "Control/CtrlGeneral.hh"
 
 /**************************************************
  * Function prototypes
