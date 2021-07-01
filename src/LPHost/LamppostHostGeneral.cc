@@ -60,15 +60,50 @@ void parse_configuration_file(Options *options) {
         exit(1);
     }
 
-    if (options->is_root_node) {
-        // TODO: Parse Robot Section
-        try {
+    // Parse RBDetection Section
+    try {
+        options->cam1_addr = GetPropertyTree<std::string>(pt,
+                                                          "RBDetection.Camera1",
+                                                          false,
+                                                          "udp://0.0.0.0:8000/");
+        options->cam2_addr = GetPropertyTree<std::string>(pt,
+                                                          "RBDetection.Camera2",
+                                                          false,
+                                                          "udp://0.0.0.0:8001/");
+        options->marker_size = GetPropertyTree<float>(pt, "RBDetection.MarkerSize", false, 0.5);
+        options->cam1_ref_id = GetPropertyTree<int>(pt, "RBDetection.Cam1RefMarker", false, 0);
+        options->cam2_ref_id = GetPropertyTree<int>(pt, "RBDetection.Cam2RefMarker", false, 0);
+        options->frame_increment = GetPropertyTree<int>(pt, "RBDetection.FrameIncrement", false, 100);
+        options->calibration_file = GetPropertyTree<std::string>(pt, "RBDetection.CalibrationFile", true, nullptr);
+        options->ref_gps_file = GetPropertyTree<std::string>(pt, "RBDetection.GPSReferenceFile", true, nullptr);
 
-        } catch (const std::invalid_argument &e) {
-            exit(1);
-        } catch (const std::out_of_range &e) {
+        // validate files
+        if (!isFileExist(options->calibration_file)) {
+            PRINTF_ERR_STAMP("Calibration file does not exist: %s\n", options->calibration_file.c_str());
             exit(1);
         }
+
+        if (!isFileExist(options->ref_gps_file)) {
+            PRINTF_ERR_STAMP("GPS reference file does not exist: %s\n", options->ref_gps_file.c_str());
+            exit(1);
+        }
+
+    } catch (const std::invalid_argument &e) {
+        PRINTF_ERR_STAMP("Parse RBDetection section get invalid_argument failed: %s\n", e.what());
+        exit(1);
+    } catch (const std::out_of_range &e) {
+        PRINTF_ERR_STAMP("Parse RBDetection section get out_of_range error: %s\n", e.what());
+        exit(1);
+    }
+    if (options->is_root_node) {
+        // TODO: Parse Robot Section
+//        try {
+//
+//        } catch (const std::invalid_argument &e) {
+//            exit(1);
+//        } catch (const std::out_of_range &e) {
+//            exit(1);
+//        }
 
         std::string default_hook_addr("192.168.1.1"); // The default IP address of RaspberryPI
         int default_hook_port = HOOK_TCP_PORT;
@@ -88,6 +123,19 @@ void print_option_setting(Options *options) {
     PRINTF_STAMP("\t\tRoot BATS Addr: %s\n", options->root_net_addr.c_str());
     PRINTF_STAMP("\t\tRoot BATS Port: %d\n", options->root_port);
     PRINTF_STAMP("\t\tRoot Node: %s\n", options->is_root_node ? "true" : "false");
+    if (options->is_root_node) {
+        PRINTF_STAMP("\t\tHook addr: %s\t port: %d\n", options->hook_ip_addr.c_str(), options->hook_ip_port);
+        PRINTF_STAMP("\t\tControl node PAN: %d\t addr: %d\n", options->ctrl_zigbee_pan, options->ctrl_zigbee_addr);
+        PRINTF_STAMP("\t\tRoot node PAN: %d\t addr: %d\n", options->root_zigbee_pan, options->root_zigbee_addr);
+    }
+    PRINTF_STAMP("\t\tCamera 1 addr: %s\n", options->cam1_addr.c_str());
+    PRINTF_STAMP("\t\tCamera 2 addr: %s\n", options->cam2_addr.c_str());
+    PRINTF_STAMP("\t\tArUco marker for reference: %d, %d\n", options->cam1_ref_id, options->cam2_ref_id);
+    PRINTF_STAMP("\t\tArUco marker size: %lf\n", options->marker_size);
+    PRINTF_STAMP("\t\tArUco detection frame increment: %d\n", options->frame_increment);
+    PRINTF_STAMP("\t\tCamera calibration file: %s\n", options->calibration_file.c_str());
+    PRINTF_STAMP("\t\tGPS reference file: %s\n", options->ref_gps_file.c_str());
+
 }
 
 void options_parse(Options *options, int argc, char **argv) {
@@ -148,41 +196,56 @@ void lamppost_program_run(LamppostHostProg *lamppostProg) {
     signal(SIGINT, interrupt_handler);
 
     // launch thread to detect from video stream
-    RBDetectionThreadArgs_t detection_args{.hostProg = lamppostProg, .terminate_flag = &term_flag};
+    RBDetectionThreadArgs_t detect_thread_args1;
+    RBDetectionThreadArgs_t detect_thread_args2;
     if (lamppostProg->options.mock_detection) {
+        detect_thread_args1.hostProg = lamppostProg;
+        detect_thread_args1.terminate_flag = &term_flag;
         PRINTF_STAMP("Launch mock thread to detect road blocks...\n");
-        pthread_create(&lamppostProg->detection_thread, nullptr, RBDetectionMockThread, (void *) &detection_args);
+        pthread_create(&lamppostProg->detection_thread1, nullptr, RBDetectionMockThread, (void *) &detect_thread_args1);
+        pthread_detach(lamppostProg->detection_thread1);
     } else {
         PRINTF_STAMP("Launch thread to detect road blocks...\n");
-        pthread_create(&lamppostProg->detection_thread, nullptr, RBDetectionThread, (void *) &detection_args);
+        detect_thread_args1.hostProg = lamppostProg;
+        detect_thread_args1.terminate_flag = &term_flag;
+        detect_thread_args1.cam_addr = lamppostProg->options.cam1_addr;
+        detect_thread_args1.ref_marker_id = lamppostProg->options.cam1_ref_id;
+        pthread_create(&lamppostProg->detection_thread1, nullptr, RBDetectionThread, (void *) &detect_thread_args1);
+        pthread_detach(lamppostProg->detection_thread1);
     }
-    pthread_detach(lamppostProg->detection_thread);
 
     // launch thread to send coordinates of detected road block to root node
     PRINTF_STAMP("Launch thread to communicate with root node...\n");
     SendThreadArgs_t sendThread_args{.hostProg = lamppostProg, .terminate_flag = &term_flag};
-    pthread_create(&lamppostProg->send_thread, nullptr, LamppostHostSendThread, (void *) &sendThread_args);
-    pthread_detach(lamppostProg->send_thread);
+    pthread_create(&lamppostProg
+            ->send_thread, nullptr, LamppostHostSendThread, (void *) &sendThread_args);
+    pthread_detach(lamppostProg
+                           ->send_thread);
 
     // if the current node is root node, launch thread to manage received data from other nodes
     if (lamppostProg->options.is_root_node) {
         PRINTF_STAMP("Launch thread to manage received data from slave nodes");
         RecvThreadArgs_t recvThread_args{.hostProg = lamppostProg, .terminate_flag = &term_flag};
-        pthread_create(&lamppostProg->recv_thread, nullptr, LamppostHostRecvThread, (void *) &recvThread_args);
-        pthread_detach(lamppostProg->recv_thread);
+        pthread_create(&lamppostProg
+                ->recv_thread, nullptr, LamppostHostRecvThread, (void *) &recvThread_args);
+        pthread_detach(lamppostProg
+                               ->recv_thread);
     }
 
     if (lamppostProg->options.is_root_node) {
         PRINTF_STAMP("Launch thread to communicate with hook node as option.is_root_node is enabled...\n");
         HookSendThreadArgs_t hookSendThreadArgs{.hostProg=lamppostProg, .terminate_flag=&term_flag};
-        pthread_create(&lamppostProg->hook_thread, nullptr, LamppostHostCommHookSendThread, (void *) &sendThread_args);
-        pthread_detach(lamppostProg->hook_thread);
+        pthread_create(&lamppostProg
+                ->hook_thread, nullptr, LamppostHostCommHookSendThread, (void *) &sendThread_args);
+        pthread_detach(lamppostProg
+                               ->hook_thread);
     }
 
     while (!term_flag) {
         // determine whether the program needs to terminate
         PRINTF_STAMP("Main program is still alive...\n");
-        sleep(10);
+        sleep(20);
+        term_flag = true;
     }
 }
 

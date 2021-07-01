@@ -9,7 +9,7 @@
 
 #include <getopt.h>
 #include <atomic>
-#include <math.h>
+#include <cmath>
 
 /**
  * Type: Options
@@ -23,7 +23,12 @@ typedef struct {
     int root_port;                      // bats port of root node               (required)
     std::string cam1_addr;              // IP address of camera 1
     std::string cam2_addr;              // IP address of camera 2
-    char *calibration_file;             // Calibration file of used camera
+    int cam1_ref_id;                    // id of ArUco marker used for reference (cam1)
+    int cam2_ref_id;                    // id of ArUco marker used for reference (cam2)
+    std::string ref_gps_file;           // xml file to store gps(es) of reference ArUco markers
+    float marker_size;                  // size of ArUco marker (in meters)
+    int frame_increment;                // number of frame
+    std::string calibration_file;       // Calibration file of used camera
     std::string hook_ip_addr;           // IP address of hook node              (set only when launch on root)
     int hook_ip_port;                   // Listen port of hook node             (set only when launch on root)
     int ctrl_zigbee_pan;                // zigbee pan of control node           (set only when launch on root)
@@ -54,7 +59,8 @@ typedef struct {
     // data structure to store options
     Options options;
     // thread to launch road block detection program
-    pthread_t detection_thread;
+    pthread_t detection_thread1;
+    pthread_t detection_thread2;
     // thread to launch communicator
     pthread_t send_thread;
     pthread_t recv_thread;
@@ -91,7 +97,7 @@ inline void print_usage(const char *prg_name) {
 
 
 inline double calculateDistance(const RBCoordinate &c1, const RBCoordinate &c2) {
-    double d = pow(c1.gps_x - c2.gps_x, 2) + pow(c1.gps_y - c2.gps_y, 2);
+    double d = pow(c1.latitude - c2.latitude, 2) + pow(c1.longitude - c2.longitude, 2);
     return sqrt(d);
 }
 

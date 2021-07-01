@@ -12,8 +12,10 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
+set(OpenCV_DIR "/usr/local/include/opencv4")
 find_package(Threads REQUIRED)
 find_package(Boost REQUIRED regex date_time system)
+find_package(OpenCV)
 include_directories(${BOOST_INCLUDE_DIRS})
 message("boost lib: ${Boost_LIBRARIES}")
 message("boost inc: ${Boost_INCLUDE_DIR}")
@@ -74,10 +76,15 @@ target_link_libraries(LamppostHost
         btp
         ipc
         ${Boost_LIBRARIES}
+        ${OpenCV_LIBS}
+        aruco
+        marker_mapper
         Threads::Threads)
 target_include_directories(LamppostHost
         PRIVATE include
-        PRIVATE pthread)
+        PRIVATE pthread
+        PRIVATE "/usr/local/include/aruco"
+        PRIVATE "/usr/local/include/maker_mapper")
 
 ################################################################
 # Exec: Build Lamppost Hook Program
