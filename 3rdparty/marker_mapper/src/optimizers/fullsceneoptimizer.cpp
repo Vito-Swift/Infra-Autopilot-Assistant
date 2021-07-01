@@ -100,14 +100,14 @@ namespace aruco_mm {
         //create the solution vector first
         SparseLevMarq<double>::eVector sol = toVector(sba_markerSet, sba_frameSet, cam_params);
 
-        cout << "SOL SIZE=" << sol.size() << " nf:" << sba_frameSet.size() << " nm:" << sba_markerSet.size() << endl;
+        //cout << "SOL SIZE=" << sol.size() << " nf:" << sba_frameSet.size() << " nm:" << sba_markerSet.size() << endl;
         SparseLevMarq<double>::eVector error;
 
         SparseLevMarq<double> solver;
         solver.verbose() = params.verbose;
 
         error_optimization(sol, error);
-        cout << "ERR INITIAL=" << error.cwiseProduct(error).sum() << endl;
+        //cout << "ERR INITIAL=" << error.cwiseProduct(error).sum() << endl;
         stats(error);
         // cout<<"INI SOLUTION: ";for(int i=0;i<10;i++)cout<<sol(i)<<" ";cout<<endl;
         double minError = (float(error.size()) / 2.) * sba_ba_params.min_error;

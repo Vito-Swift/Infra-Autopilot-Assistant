@@ -185,9 +185,9 @@ namespace aruco_mm {
         if (debug::Debug::getLevel() >= 10) savePCDFile("outxx.pcd", _markerSet);
 
         auto time3 = std::chrono::high_resolution_clock::now();
-        cout << "PosegraphOptimization="
-             << double(std::chrono::duration_cast<std::chrono::nanoseconds>(time3 - time2).count()) / 1e9 << "s"
-             << endl;
+        //cout << "PosegraphOptimization="
+        //     << double(std::chrono::duration_cast<std::chrono::nanoseconds>(time3 - time2).count()) / 1e9 << "s"
+        //     << endl;
 
 
         //Full Optimization,
@@ -206,7 +206,7 @@ namespace aruco_mm {
 
         //Do a full refinament. Go adding frames if their errors are below a threshold. Then, repeat until no more frames added
         FrameSet fs_opt = getOptimizingFrameSet(_frameSet, _markerSet, _cam_params, 1e6, 2);
-        cout << "fs_opt =" << fs_opt.size() << endl;
+        //cout << "fs_opt =" << fs_opt.size() << endl;
 
         int cur_size = fs_opt.size();
         int prev_size = 0;
@@ -352,7 +352,7 @@ namespace aruco_mm {
             return err * 0.25;
         };
 
-        cerr << "\n-------------------" << endl;
+        //cerr << "\n-------------------" << endl;
         //Now,from the set of possible poses between every two frames, select the one that minimizes the reprojection error in all views of the two markers
         //the result is both a posegraph, and a cost graph. The first has the pose and the second the avrg reprojection error. So, poses with low cost are better options
 
@@ -526,7 +526,7 @@ namespace aruco_mm {
                 mset[m.first] = MarkerInfo(m.first, RT.inv(), _defaultMarkerSize);
             }
         }
-        cout << "largest_path=" << largest_path << endl;
+        //cout << "largest_path=" << largest_path << endl;
         return mset;
     }
 

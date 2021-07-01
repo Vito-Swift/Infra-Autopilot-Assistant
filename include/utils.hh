@@ -52,6 +52,9 @@
 
 // defines for road blocks detections
 #define RB_SEGMENT_THRESHOLD 1
+#define RB_DEFAULT_REF_LONG (20.0)
+#define RB_DEFAULT_REF_LATI (50.0)
+#define RB_SAFE_BOUNDING (1UL)
 
 // default values for Zigbee network configuration
 #define ZIGBEE_CTRL_PAN 1
@@ -69,12 +72,12 @@
  *      In this structure,
  */
 typedef struct RBCoordinate {
-    double gps_x;
-    double gps_y;
+    double latitude;
+    double longitude;
 
-    RBCoordinate(double gps_x, double gps_y) : gps_x(gps_x), gps_y(gps_y) {}
+    RBCoordinate(double gps_x, double gps_y) : latitude(gps_x), longitude(gps_y) {}
 
-    RBCoordinate() : gps_x(0), gps_y(0) {}
+    RBCoordinate() : latitude(0), longitude(0) {}
 } RBCoordinate;
 
 typedef struct LamppostBackbonePacket {
@@ -340,8 +343,21 @@ GetPropertyTree(const boost::property_tree::ptree &pt, const std::string entry, 
     }
 }
 
-bool SetSocketBlockingEnabled(int fd, bool blocking)
-{
+template<typename T>
+inline T
+GetPropertyTree(const boost::property_tree::ptree &pt, const std::string entry, bool is_required, T default_val) {
+    if (!pt.get_optional<T>(entry).is_initialized()) {
+        if (is_required) {
+            EXIT_WITH_MSG("Get entry from configuration file error: %s is required but does not exist.\n",
+                          entry.c_str());
+        }
+        return default_val;
+    } else {
+        return pt.get<T>(entry);
+    }
+}
+
+inline bool SetSocketBlockingEnabled(int fd, bool blocking) {
     if (fd < 0) return false;
 
 #ifdef _WIN32
@@ -354,4 +370,5 @@ bool SetSocketBlockingEnabled(int fd, bool blocking)
     return (fcntl(fd, F_SETFL, flags) == 0) ? true : false;
 #endif
 }
+
 #endif //LAMPPOSTAUTOCARDEMO_UTILS_HH

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<RefPoints>
+    <RefPoint>
+        <aruco_id>10</aruco_id>
+        <latitude>22.688116</latitude>
+        <longitude>114.214472</longitude>
+    </RefPoint>
+    <Metric>
+        <long_diff_in_xm></long_diff_in_xm>
+        <long_diff_in_ym></long_diff_in_ym>
+        <lat_diff_in_xm></lat_diff_in_xm>
+        <lat_diff_in_ym></lat_diff_in_ym>
+    </Metric>
+</RefPoints>

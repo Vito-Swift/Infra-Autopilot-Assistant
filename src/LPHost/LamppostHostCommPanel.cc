@@ -102,7 +102,7 @@ void *LamppostHostRecvThread(void *vargp) {
             if (isNewRoadBlock) {
                 PRINTF_THREAD_STAMP("Lamppost %d has detected a new road block at (%lf, %lf), "
                                     "appending into array: CollectedRBCoordinates.\n",
-                                    tmp_packet.src_addr, tmp_packet.coord.gps_x, tmp_packet.coord.gps_y);
+                                    tmp_packet.src_addr, tmp_packet.coord.latitude, tmp_packet.coord.longitude);
                 args->hostProg->CollectedRBCoordinates.push_back(tmp_packet.coord);
             }
             args->hostProg->crb_c.notify_one();
