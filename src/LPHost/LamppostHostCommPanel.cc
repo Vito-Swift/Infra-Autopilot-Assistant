@@ -33,7 +33,9 @@ void *LamppostHostSendThread(void *vargp) {
 
     if (packetSize < sizeof(LamppostBackbonePacket_t)) {
         PRINTF_THREAD_STAMP("Found Backbone Packet size is larger than the local data buffer size. Exit.\n");
-        *(args->terminate_flag) = true;
+        pthread_mutex_lock(&(args->hostProg->term_mutex));
+        args->hostProg->term_flag = true;
+        pthread_mutex_unlock(&(args->hostProg->term_mutex));
         return nullptr;
     }
 
@@ -41,7 +43,7 @@ void *LamppostHostSendThread(void *vargp) {
     socket.bind(BACKBONE_SEND_PORT_DEFAULT);
     PRINTF_THREAD_STAMP("BATS Socket has been initialized.\n");
 
-    while (!*(args->terminate_flag)) {
+    while (!test_cancel(&args->hostProg->term_mutex, &args->hostProg->term_flag)) {
         // fill in databuf
         memset(dataBuf, 0, packetSize);
         LamppostBackbonePacket_t tmp_packet;
@@ -58,7 +60,7 @@ void *LamppostHostSendThread(void *vargp) {
 
         usleep(BACKBONE_SEND_INTERVAL);
     }
-    PRINTF_THREAD_STAMP("Catch termination flag, exit thread\n");
+    PRINTF_THREAD_STAMP("Catch termination flag, exit thread.\n");
     SFREE(dataBuf);
 }
 
@@ -82,7 +84,7 @@ void *LamppostHostRecvThread(void *vargp) {
         char *dataBuf = SMALLOC(char, BACKBONE_PACKET_SIZE);
         int dataLen;
 
-        while (!*(args->terminate_flag)) {
+        while (!test_cancel(&args->hostProg->term_mutex, &args->hostProg->term_flag)) {
             memset(dataBuf, 0, BACKBONE_PACKET_SIZE);
             dataLen = socket.recv(dataBuf, BACKBONE_PACKET_SIZE);
             LamppostBackbonePacket_t tmp_packet;
@@ -131,7 +133,9 @@ void *LamppostHostCommHookSendThread(void *vargp) {
     int sockfd;
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         PRINTF_ERR_STAMP("Create hook socket error. Should exit.\n");
-        *(args->terminate_flag) = true;
+        pthread_mutex_lock(&(args->hostProg->term_mutex));
+        args->hostProg->term_flag = true;
+        pthread_mutex_unlock(&(args->hostProg->term_mutex));
         return nullptr;
     }
 
@@ -141,7 +145,9 @@ void *LamppostHostCommHookSendThread(void *vargp) {
     hook_addr_comp.sin_port = htons(hook_port);
     if (inet_pton(AF_INET, hook_addr_str, &hook_addr_comp.sin_addr) <= 0) {
         PRINTF_ERR_STAMP("Invalid hook program address is provided. Should exit.\n");
-        *(args->terminate_flag) = true;
+        pthread_mutex_lock(&(args->hostProg->term_mutex));
+        args->hostProg->term_flag = true;
+        pthread_mutex_unlock(&(args->hostProg->term_mutex));
         return nullptr;
     }
 
@@ -154,7 +160,7 @@ void *LamppostHostCommHookSendThread(void *vargp) {
     }
     PRINTF_THREAD_STAMP("Connected to hook node, start sending coordinates and control flags.\n");
 
-    while (!(args->terminate_flag)) {
+    while (!test_cancel(&args->hostProg->term_mutex, &args->hostProg->term_flag)) {
         memset(dataBuf, 0, HOOK_MAX_PACKET_SIZE);
         sleep(HOOK_PACKET_INTERVAL);
         if (args->hostProg->CollectedRBCoordinates.size() > HOOK_MAX_COORD_NUM) {
@@ -171,9 +177,9 @@ void *LamppostHostCommHookSendThread(void *vargp) {
         tmp_packet.ctrl_zigbee_addr = args->hostProg->options.ctrl_zigbee_addr;
         tmp_packet.root_zigbee_pan = args->hostProg->options.root_zigbee_pan;
         tmp_packet.root_zigbee_addr = args->hostProg->options.root_zigbee_addr;
-        tmp_packet.flag = *(args->terminate_flag);
+        tmp_packet.flag = (args->hostProg->term_flag);
 
-        std::lock_guard<std::mutex> sendlock(args->hostProg->crb_mutex);
+        std::lock_guard <std::mutex> sendlock(args->hostProg->crb_mutex);
         tmp_packet.coords_num = args->hostProg->CollectedRBCoordinates.size();
         for (int i = 0; i < tmp_packet.coords_num; i++) {
             tmp_packet.coords[i] = args->hostProg->CollectedRBCoordinates[i];
@@ -184,4 +190,5 @@ void *LamppostHostCommHookSendThread(void *vargp) {
         PRINTF_THREAD_STAMP("Sent 1 packet to hook node.\n");
     }
     SFREE(dataBuf);
+    PRINTF_THREAD_STAMP("Catch termination flag, exit thread.\n");
 }

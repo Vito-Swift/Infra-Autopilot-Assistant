@@ -108,23 +108,32 @@ void *RBDetectionThread(void *vargp) {
             sleep(3);
             continue;
         }
+
+        if (test_cancel(&args->hostProg->term_mutex, &args->hostProg->term_flag)) {
+            PRINTF_THREAD_STAMP("Catch termination flag!\n");
+            pthread_exit(nullptr);
+        }
+
         PRINTF_THREAD_STAMP("%s \t Preparing data structures\n", args->cam_addr.c_str());
-        std::shared_ptr <aruco_mm::MarkerMapper> arucoMarkerMapper;
+        std::shared_ptr<aruco_mm::MarkerMapper> arucoMarkerMapper;
         arucoMarkerMapper = aruco_mm::MarkerMapper::create();
         arucoMarkerMapper->setParams(camera_params, marker_size, ref_marker_id);
         arucoMarkerMapper->getMarkerDetector().setDictionary("ARUCO");
 
         total_batch_num += 1.0;
         PRINTF_THREAD_STAMP("%s \t Start processing on the subsequent batch of frames...\n", args->cam_addr.c_str());
-        for (int i = 0; i < frame_increment && !(*args->terminate_flag); i++) {
+        for (int i = 0;
+             i < frame_increment && !(test_cancel(&args->hostProg->term_mutex, &args->hostProg->term_flag)); i++) {
             cap >> frame;
             if (frame.empty())
                 break;
             arucoMarkerMapper->process(frame, i, true);
         }
 
-        if (*args->terminate_flag)
-            break;
+        if (test_cancel(&args->hostProg->term_mutex, &args->hostProg->term_flag)) {
+            PRINTF_THREAD_STAMP("Catch termination flag!\n");
+            pthread_exit(nullptr);
+        }
 
         PRINTF_THREAD_STAMP("%s \t Main processing has done\n", args->cam_addr.c_str());
         PRINTF_THREAD_STAMP("%s \t Optimizing mapping result...\n", args->cam_addr.c_str());
@@ -144,19 +153,24 @@ void *RBDetectionThread(void *vargp) {
                                     args->cam_addr.c_str(), i,
                                     mean.x, mean.y, mean.z,
                                     coordinate.latitude, coordinate.longitude);
+                if (test_cancel(&args->hostProg->term_mutex, &args->hostProg->term_flag)) {
+                    PRINTF_THREAD_STAMP("Catch termination flag!\n");
+                    pthread_exit(nullptr);
+                }
                 args->hostProg->RoadBlockCoordinates.enqueue(coordinate);
             }
         } catch (std::invalid_argument &e) {
             fail_batch_num += 1.0;
             PRINTF_ERR_STAMP("%s\n", e.what());
         }
-    } while (!(*args->terminate_flag));
-    PRINTF_THREAD_STAMP("Thread exit.\n");
+    } while (!(test_cancel(&args->hostProg->term_mutex, &args->hostProg->term_flag)));
+    PRINTF_THREAD_STAMP("Catch termination flag!\n");
+    pthread_exit(nullptr);
 }
 
 void *RBDetectionMockThread(void *vargp) {
     auto args = (RBDetectionThreadArgs_t *) vargp;
-    while (!(*args->terminate_flag)) {
+    while (!(test_cancel(&args->hostProg->term_mutex, &args->hostProg->term_flag))) {
         PRINTF_THREAD_STAMP("Mock add RBCoordinate into queue\n");
         args->hostProg->RoadBlockCoordinates.enqueue(RBCoordinate(0, 0));
         sleep(1);

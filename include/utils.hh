@@ -109,30 +109,43 @@ typedef struct HookPacket {
 template<class T>
 class Queue {
 public:
-    Queue() : q(), m(), c() {}
+    Queue() : q(), m(), c() { is_close = false; }
 
     ~Queue() {}
 
     void enqueue(T t) {
         std::lock_guard<std::mutex> lock(m);
+        if (is_close)
+            throw std::runtime_error("try to push into a closed queue!");
         q.push(t);
         c.notify_one();
     }
 
     T dequeue(void) {
         std::unique_lock<std::mutex> lock(m);
-        while (q.empty()) {
+        while (q.empty() && !is_close) {
             c.wait(lock);
+        }
+        T ret;
+        if (is_close) {
+            return ret;
         }
         T val = q.front();
         q.pop();
         return val;
     }
 
+    void close() noexcept {
+        std::lock_guard<std::mutex> lock(m);
+        is_close = true;
+        c.notify_all();
+    }
+
 private:
     std::queue<T> q;
     mutable std::mutex m;
     std::condition_variable c;
+    bool is_close;
 };
 
 template<class T>
@@ -369,6 +382,14 @@ inline bool SetSocketBlockingEnabled(int fd, bool blocking) {
     flags = blocking ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK);
     return (fcntl(fd, F_SETFL, flags) == 0) ? true : false;
 #endif
+}
+
+inline bool test_cancel(pthread_mutex_t *mutex, bool *val) {
+    bool ret;
+    pthread_mutex_lock(mutex);
+    ret = *val;
+    pthread_mutex_unlock(mutex);
+    return ret;
 }
 
 #endif //LAMPPOSTAUTOCARDEMO_UTILS_HH
