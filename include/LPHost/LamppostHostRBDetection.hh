@@ -33,7 +33,6 @@
 
 typedef struct RBDetectionThreadArgs {
     LamppostHostProg *hostProg;
-    std::atomic<bool> *terminate_flag;
     std::string cam_addr;
     int ref_marker_id;
 } RBDetectionThreadArgs_t;

@@ -8,13 +8,16 @@
 
 #include "LPHost/LamppostHostGeneral.hh"
 
-std::atomic<bool> term_flag;
 LamppostHostProg *globalHostProg;
 
 void interrupt_handler(int dummy) {
     PRINTF_STAMP("Catch CTRL-C signal.\n");
     PRINTF_STAMP("Terminate detached threads and exit.\n");
-    term_flag = true;
+    pthread_mutex_lock(&globalHostProg->term_mutex);
+    globalHostProg->term_flag = true;
+    pthread_mutex_unlock(&globalHostProg->term_mutex);
+    lamppost_program_exit(globalHostProg);
+    sleep(5);
     pthread_exit(nullptr);
 }
 
@@ -188,7 +191,9 @@ void options_free(Options *options) {
 void lamppost_program_init(LamppostHostProg *lamppostProg, int argc, char **argv) {
     options_init(&lamppostProg->options);
     options_parse(&lamppostProg->options, argc, argv);
-    term_flag = false;
+    pthread_mutex_lock(&lamppostProg->term_mutex);
+    lamppostProg->term_flag = false;
+    pthread_mutex_unlock(&lamppostProg->term_mutex);
     globalHostProg = lamppostProg;
 }
 
@@ -200,14 +205,12 @@ void lamppost_program_run(LamppostHostProg *lamppostProg) {
     RBDetectionThreadArgs_t detect_thread_args2;
     if (lamppostProg->options.mock_detection) {
         detect_thread_args1.hostProg = lamppostProg;
-        detect_thread_args1.terminate_flag = &term_flag;
         PRINTF_STAMP("Launch mock thread to detect road blocks...\n");
         pthread_create(&lamppostProg->detection_thread1, nullptr, RBDetectionMockThread, (void *) &detect_thread_args1);
         pthread_detach(lamppostProg->detection_thread1);
     } else {
         PRINTF_STAMP("Launch thread to detect road blocks...\n");
         detect_thread_args1.hostProg = lamppostProg;
-        detect_thread_args1.terminate_flag = &term_flag;
         detect_thread_args1.cam_addr = lamppostProg->options.cam1_addr;
         detect_thread_args1.ref_marker_id = lamppostProg->options.cam1_ref_id;
         pthread_create(&lamppostProg->detection_thread1, nullptr, RBDetectionThread, (void *) &detect_thread_args1);
@@ -216,40 +219,43 @@ void lamppost_program_run(LamppostHostProg *lamppostProg) {
 
     // launch thread to send coordinates of detected road block to root node
     PRINTF_STAMP("Launch thread to communicate with root node...\n");
-    SendThreadArgs_t sendThread_args{.hostProg = lamppostProg, .terminate_flag = &term_flag};
-    pthread_create(&lamppostProg
-            ->send_thread, nullptr, LamppostHostSendThread, (void *) &sendThread_args);
-    pthread_detach(lamppostProg
-                           ->send_thread);
+    SendThreadArgs_t sendThread_args{.hostProg = lamppostProg};
+    pthread_create(&lamppostProg->send_thread, nullptr, LamppostHostSendThread, (void *) &sendThread_args);
+    pthread_detach(lamppostProg->send_thread);
 
     // if the current node is root node, launch thread to manage received data from other nodes
     if (lamppostProg->options.is_root_node) {
         PRINTF_STAMP("Launch thread to manage received data from slave nodes");
-        RecvThreadArgs_t recvThread_args{.hostProg = lamppostProg, .terminate_flag = &term_flag};
-        pthread_create(&lamppostProg
-                ->recv_thread, nullptr, LamppostHostRecvThread, (void *) &recvThread_args);
-        pthread_detach(lamppostProg
-                               ->recv_thread);
+        RecvThreadArgs_t recvThread_args{.hostProg = lamppostProg};
+        pthread_create(&lamppostProg->recv_thread, nullptr, LamppostHostRecvThread, (void *) &recvThread_args);
+        pthread_detach(lamppostProg->recv_thread);
     }
 
     if (lamppostProg->options.is_root_node) {
         PRINTF_STAMP("Launch thread to communicate with hook node as option.is_root_node is enabled...\n");
-        HookSendThreadArgs_t hookSendThreadArgs{.hostProg=lamppostProg, .terminate_flag=&term_flag};
-        pthread_create(&lamppostProg
-                ->hook_thread, nullptr, LamppostHostCommHookSendThread, (void *) &sendThread_args);
+        HookSendThreadArgs_t hookSendThreadArgs{.hostProg=lamppostProg};
+        pthread_create(&lamppostProg->hook_thread,
+                       nullptr,
+                       LamppostHostCommHookSendThread,
+                       (void *) &sendThread_args);
         pthread_detach(lamppostProg
                                ->hook_thread);
     }
 
-    while (!term_flag) {
+    while (!test_cancel(&(lamppostProg->term_mutex), &(lamppostProg->term_flag))) {
         // determine whether the program needs to terminate
         PRINTF_STAMP("Main program is still alive...\n");
-        sleep(20);
-        term_flag = true;
+        sleep(30);
+        pthread_mutex_lock(&(lamppostProg->term_mutex));
+        lamppostProg->term_flag = true;
+        pthread_mutex_unlock(&(lamppostProg->term_mutex));
     }
 }
 
 void lamppost_program_exit(LamppostHostProg *lamppostProg) {
     PRINTF_STAMP("Clean and exit.\n");
     options_free(&lamppostProg->options);
+    lamppostProg->RoadBlockCoordinates.close();
+    // wait for other thread to terminate gracefully
+    sleep(5);
 }

@@ -18,21 +18,18 @@
 
 typedef struct SendThreadArgs {
     LamppostHostProg *hostProg;
-    std::atomic<bool> *terminate_flag;
 } SendThreadArgs_t;
 
 void *LamppostHostSendThread(void *vargp);
 
 typedef struct RecvThreadArgs {
     LamppostHostProg *hostProg;
-    std::atomic<bool> *terminate_flag;
 } RecvThreadArgs_t;
 
 void *LamppostHostRecvThread(void *vargp);
 
 typedef struct HookSendThreadArgs {
     LamppostHostProg *hostProg;
-    std::atomic<bool> *terminate_flag;
 } HookSendThreadArgs_t;
 
 void *LamppostHostCommHookSendThread(void* vargp);

@@ -74,6 +74,10 @@ typedef struct {
     Vector<RBCoordinate> CollectedRBCoordinates;
     mutable std::mutex crb_mutex;
     std::condition_variable crb_c;
+
+    // cancelation flags
+    pthread_mutex_t term_mutex;
+    bool term_flag;
 } LamppostHostProg;
 
 inline void print_usage(const char *prg_name) {
