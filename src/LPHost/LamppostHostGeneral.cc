@@ -16,6 +16,7 @@ void interrupt_handler(int dummy) {
     pthread_mutex_lock(&globalHostProg->term_mutex);
     globalHostProg->term_flag = true;
     pthread_mutex_unlock(&globalHostProg->term_mutex);
+    lamppost_program_exit(globalHostProg);
     sleep(5);
     pthread_exit(nullptr);
 }
@@ -244,18 +245,17 @@ void lamppost_program_run(LamppostHostProg *lamppostProg) {
     while (!test_cancel(&(lamppostProg->term_mutex), &(lamppostProg->term_flag))) {
         // determine whether the program needs to terminate
         PRINTF_STAMP("Main program is still alive...\n");
-        sleep(10);
+        sleep(30);
         pthread_mutex_lock(&(lamppostProg->term_mutex));
         lamppostProg->term_flag = true;
         pthread_mutex_unlock(&(lamppostProg->term_mutex));
     }
-
-    // wait for other thread to terminate
-    lamppostProg->RoadBlockCoordinates.close();
-    sleep(5);
 }
 
 void lamppost_program_exit(LamppostHostProg *lamppostProg) {
     PRINTF_STAMP("Clean and exit.\n");
     options_free(&lamppostProg->options);
+    lamppostProg->RoadBlockCoordinates.close();
+    // wait for other thread to terminate gracefully
+    sleep(5);
 }

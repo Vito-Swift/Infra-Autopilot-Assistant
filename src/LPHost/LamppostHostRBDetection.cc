@@ -90,8 +90,7 @@ void *RBDetectionThread(void *vargp) {
     geometrics_t metrics = getMetricsFromXML(args->hostProg->options.ref_gps_file);
 
     PRINTF_THREAD_STAMP("%s \t Opening video stream......\n", args->cam_addr.c_str());
-    cv::VideoCapture cap;
-    cap.open(args->cam_addr);
+    cv::VideoCapture cap(args->cam_addr);
     cv::Mat frame;
 
     PRINTF_THREAD_STAMP("%s \t Configure marker mapper......\n", args->cam_addr.c_str());
@@ -102,8 +101,7 @@ void *RBDetectionThread(void *vargp) {
     float total_batch_num = 0;
     float fail_batch_num = 0;
     do {
-        cap >> frame;
-        if (frame.empty()) {
+        if (!cap.grab()) {
             PRINTF_THREAD_STAMP("%s \t video stream interrupted, waiting...\n", args->cam_addr.c_str());
             sleep(3);
             continue;
@@ -146,8 +144,7 @@ void *RBDetectionThread(void *vargp) {
             PRINTF_THREAD_STAMP("%s \t Detected %d markers in the video\n", args->cam_addr.c_str(),
                                 detected_marker_num);
             for (int i : detectedArucoMarkerIDList) {
-                cv::Point3f mean =
-                        mean3f(arucoMarkerMapper->getMarkerMap().getMarker3DInfo(i).points);
+                cv::Point3f mean = mean3f(arucoMarkerMapper->getMarkerMap().getMarker3DInfo(i).points);
                 RBCoordinate coordinate = estimateRBCoordinate(ref_gps, metrics, mean.x, mean.y, mean.z);
                 PRINTF_THREAD_STAMP("%s \t Aruco index: %d \t At: (%lf, %lf, %lf)\t estimate gps: (%lf, %lf)\n",
                                     args->cam_addr.c_str(), i,

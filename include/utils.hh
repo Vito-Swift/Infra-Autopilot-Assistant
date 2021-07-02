@@ -121,18 +121,16 @@ public:
         c.notify_one();
     }
 
-    T dequeue(void) {
+    bool dequeue(T &t) {
         std::unique_lock<std::mutex> lock(m);
         while (q.empty() && !is_close) {
             c.wait(lock);
         }
-        T ret;
-        if (is_close) {
-            return ret;
-        }
-        T val = q.front();
+        if (is_close)
+            return false;
+        t = q.front();
         q.pop();
-        return val;
+        return true;
     }
 
     void close() noexcept {

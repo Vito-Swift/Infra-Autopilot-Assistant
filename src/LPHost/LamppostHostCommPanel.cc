@@ -48,7 +48,8 @@ void *LamppostHostSendThread(void *vargp) {
         memset(dataBuf, 0, packetSize);
         LamppostBackbonePacket_t tmp_packet;
         tmp_packet.src_addr = addr;
-        tmp_packet.coord = args->hostProg->RoadBlockCoordinates.dequeue();
+        if (!args->hostProg->RoadBlockCoordinates.dequeue(tmp_packet.coord))
+            break;
         memcpy(dataBuf, &tmp_packet, sizeof(LamppostBackbonePacket_t));
 
         // send databuf to root node
@@ -179,7 +180,7 @@ void *LamppostHostCommHookSendThread(void *vargp) {
         tmp_packet.root_zigbee_addr = args->hostProg->options.root_zigbee_addr;
         tmp_packet.flag = (args->hostProg->term_flag);
 
-        std::lock_guard <std::mutex> sendlock(args->hostProg->crb_mutex);
+        std::lock_guard<std::mutex> sendlock(args->hostProg->crb_mutex);
         tmp_packet.coords_num = args->hostProg->CollectedRBCoordinates.size();
         for (int i = 0; i < tmp_packet.coords_num; i++) {
             tmp_packet.coords[i] = args->hostProg->CollectedRBCoordinates[i];
