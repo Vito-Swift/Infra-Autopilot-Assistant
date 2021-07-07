@@ -2,13 +2,13 @@
 <RefPoints>
     <RefPoint>
         <aruco_id>10</aruco_id>
-        <latitude>22.688116</latitude>
-        <longitude>114.214472</longitude>
+        <x>1.0</x>
+        <y>0.0</y>
     </RefPoint>
     <Metric>
-        <long_diff_in_xm></long_diff_in_xm>
-        <long_diff_in_ym></long_diff_in_ym>
-        <lat_diff_in_xm></lat_diff_in_xm>
-        <lat_diff_in_ym></lat_diff_in_ym>
+        <x_diff_in_xm>1.0</x_diff_in_xm>
+        <x_diff_in_ym>0.0</x_diff_in_ym>
+        <y_diff_in_xm>0.0</y_diff_in_xm>
+        <y_diff_in_ym>1.0</y_diff_in_ym>
     </Metric>
 </RefPoints>

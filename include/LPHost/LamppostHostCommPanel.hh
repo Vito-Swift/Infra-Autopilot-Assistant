@@ -13,6 +13,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
 #include "LamppostHostUtils.hh"
 
@@ -32,6 +34,12 @@ typedef struct HookSendThreadArgs {
     LamppostHostProg *hostProg;
 } HookSendThreadArgs_t;
 
-void *LamppostHostCommHookSendThread(void* vargp);
+void *LamppostHostCommHookSendThread(void *vargp);
+
+typedef struct {
+    LamppostHostProg *hostProg;
+} LmpCtlListenerArgs_t;
+
+void *LamppostHostLmpCtlListenerThread(void *vargp);
 
 #endif //LAMPPOSTAUTOCARDEMO_LAMPPOSTHOSTCOMMPANEL_HH

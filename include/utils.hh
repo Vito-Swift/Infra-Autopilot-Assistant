@@ -42,6 +42,7 @@
 #define BACKBONE_SEND_PORT_DEFAULT 201
 #define BACKBONE_RECV_PORT_DEFAULT 200
 #define BACKBONE_SEND_INTERVAL 100UL
+#define BACKBONE_ALIVE_INTERVAL 20UL
 
 // default values for Hook tcp network configuration
 #define HOOK_TCP_PORT 1020
@@ -52,15 +53,27 @@
 
 // defines for road blocks detections
 #define RB_SEGMENT_THRESHOLD 1
-#define RB_DEFAULT_REF_LONG (20.0)
-#define RB_DEFAULT_REF_LATI (50.0)
+#define RB_DEFAULT_REF_LONG (1.0)
+#define RB_DEFAULT_REF_LATI (0.0)
 #define RB_SAFE_BOUNDING (1UL)
+
+// defines for path searching algorithm
+const float step_size = 0.1;    // for each single step, the robot moves 0.1 (meter)
 
 // default values for Zigbee network configuration
 #define ZIGBEE_CTRL_PAN 1
 #define ZIGBEE_CTRL_ADDR 50
 #define ZIGBEE_ROOT_PAN 1
 #define ZIGBEE_ROOT_ADDR 51
+
+// default values for lmpctl subprogram
+#define LMPCTL_STAT_FLAG 1
+#define LMPCTL_LOG_FLAG 2
+#define LMPCTL_SHUTDOWN_FLAG 3
+const std::string lmpctl_fifo_name = "/tmp/lmpctl_fifo";
+
+// default values for control channel
+#define CONTROL_SHUTDOWN_FLAG (LMPCTL_SHUTDOWN_FLAG)
 
 /*  ********************************************************
  *                 Data Structures
@@ -72,12 +85,12 @@
  *      In this structure,
  */
 typedef struct RBCoordinate {
-    double latitude;
-    double longitude;
+    double x;
+    double y;
 
-    RBCoordinate(double gps_x, double gps_y) : latitude(gps_x), longitude(gps_y) {}
+    RBCoordinate(double gps_x, double gps_y) : x(gps_x), y(gps_y) {}
 
-    RBCoordinate() : latitude(0), longitude(0) {}
+    RBCoordinate() : x(0), y(0) {}
 } RBCoordinate;
 
 typedef struct LamppostBackbonePacket {

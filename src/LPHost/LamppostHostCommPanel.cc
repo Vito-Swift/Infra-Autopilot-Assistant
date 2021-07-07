@@ -17,7 +17,6 @@ void *LamppostHostSendThread(void *vargp) {
 
     PRINTF_THREAD_STAMP("Sending thread has been launched, initializing BATSSocket and BATSParams.\n");
     BATSSocket socket;
-
     // Networking configurations
     int addr = parseNetAddrStr(args->hostProg->options.netaddr_str);
     int root_addr = parseNetAddrStr(args->hostProg->options.root_net_addr);
@@ -87,10 +86,29 @@ void *LamppostHostRecvThread(void *vargp) {
 
         while (!test_cancel(&args->hostProg->term_mutex, &args->hostProg->term_flag)) {
             memset(dataBuf, 0, BACKBONE_PACKET_SIZE);
-            dataLen = socket.recv(dataBuf, BACKBONE_PACKET_SIZE);
+            uint16_t sender_addr;
+            uint8_t sender_port;
+            dataLen = socket.recv(dataBuf, BACKBONE_PACKET_SIZE, &sender_addr, &sender_port);
             LamppostBackbonePacket_t tmp_packet;
             memcpy(&tmp_packet, dataBuf, sizeof(LamppostBackbonePacket_t));
             PRINTF_THREAD_STAMP("Receive data from lamppost: %d\n", tmp_packet.src_addr);
+
+            if (std::find(args->hostProg->LamppostAliveList.begin(),
+                          args->hostProg->LamppostAliveList.end(), sender_addr)
+                != args->hostProg->LamppostAliveList.end()) {
+                // the sender lamppost is already in the LamppostAliveList, update its time
+                pthread_mutex_lock(&args->hostProg->lal_modify_mutex);
+                for (auto &i : args->hostProg->LamppostAliveList) {
+                    if (i.first == sender_addr)
+                        i.second = time(nullptr);
+                }
+                pthread_mutex_unlock(&args->hostProg->lal_modify_mutex);
+            } else {
+                // the sender lamppost does not in the LamppostAliveList, insert
+                pthread_mutex_lock(&args->hostProg->lal_modify_mutex);
+                args->hostProg->LamppostAliveList.emplace_back(sender_addr, time(nullptr));
+                pthread_mutex_unlock(&args->hostProg->lal_modify_mutex);
+            }
 
             // Enqueue data into collected Roadblock Coordinates
             bool isNewRoadBlock = true;
@@ -105,7 +123,7 @@ void *LamppostHostRecvThread(void *vargp) {
             if (isNewRoadBlock) {
                 PRINTF_THREAD_STAMP("Lamppost %d has detected a new road block at (%lf, %lf), "
                                     "appending into array: CollectedRBCoordinates.\n",
-                                    tmp_packet.src_addr, tmp_packet.coord.latitude, tmp_packet.coord.longitude);
+                                    tmp_packet.src_addr, tmp_packet.coord.x, tmp_packet.coord.y);
                 args->hostProg->CollectedRBCoordinates.push_back(tmp_packet.coord);
             }
             args->hostProg->crb_c.notify_one();
@@ -192,4 +210,44 @@ void *LamppostHostCommHookSendThread(void *vargp) {
     }
     SFREE(dataBuf);
     PRINTF_THREAD_STAMP("Catch termination flag, exit thread.\n");
+}
+
+void *LamppostHostLmpCtlListenerThread(void *vargp) {
+    auto args = (LmpCtlListenerArgs_t *) vargp;
+    char buf[100];
+    int fd;
+    mkfifo(lmpctl_fifo_name.c_str(), 0666);
+
+    while (!test_cancel(&args->hostProg->term_mutex, &args->hostProg->term_flag)) {
+        fd = open(lmpctl_fifo_name.c_str(), O_WRONLY);
+
+        read(fd, buf, 100);
+
+        unsigned char lmpctl_command = buf[0];
+
+        switch (lmpctl_command) {
+            case LMPCTL_STAT_FLAG:
+                break;
+
+            case LMPCTL_SHUTDOWN_FLAG:
+                PRINTF_THREAD_STAMP("Get shutdown request from lmpctl program!\n");
+                PRINTF_THREAD_STAMP("Send shutdown request to all slave programs...\n");
+                pthread_mutex_lock(&args->hostProg->lal_modify_mutex);
+                // TODO: kill all threads
+                for (auto &i: args->hostProg->LamppostAliveList) {
+                    uint16_t lamp_addr = i.first;
+                }
+                pthread_mutex_unlock(&args->hostProg->lal_modify_mutex);
+
+                PRINTF_THREAD_STAMP("Set shutdown status on local...\n");
+                pthread_mutex_lock(&args->hostProg->term_mutex);
+                args->hostProg->term_flag = true;
+                pthread_mutex_unlock(&args->hostProg->term_mutex);
+                break;
+
+            default:
+                PRINTF_ERR_STAMP("Unrecognized command: %d\n", lmpctl_command);
+                break;
+        }
+    }
 }

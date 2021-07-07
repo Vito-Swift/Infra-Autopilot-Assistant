@@ -72,6 +72,11 @@ typedef struct {
 
     // Array to store the received coordinates (on root program)
     Vector<RBCoordinate> CollectedRBCoordinates;
+
+    // Array to store the address of alive lamppost node (on root program）
+    std::vector<std::pair<uint16_t, time_t>> LamppostAliveList;
+    pthread_mutex_t lal_modify_mutex;
+
     mutable std::mutex crb_mutex;
     std::condition_variable crb_c;
 
@@ -101,7 +106,7 @@ inline void print_usage(const char *prg_name) {
 
 
 inline double calculateDistance(const RBCoordinate &c1, const RBCoordinate &c2) {
-    double d = pow(c1.latitude - c2.latitude, 2) + pow(c1.longitude - c2.longitude, 2);
+    double d = pow(c1.x - c2.x, 2) + pow(c1.y - c2.y, 2);
     return sqrt(d);
 }
 

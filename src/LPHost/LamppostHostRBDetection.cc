@@ -9,13 +9,13 @@
 #include "LPHost/LamppostHostRBDetection.hh"
 
 typedef struct {
-    float long_diff_in_xm;
-    float long_diff_in_ym;
-    float lat_diff_in_xm;
-    float lat_diff_in_ym;
+    float y_diff_in_xm;
+    float y_diff_in_ym;
+    float x_diff_in_xm;
+    float x_diff_in_ym;
 } geometrics_t;
 
-cv::Point3f mean3f(const std::vector <cv::Point3f> &points) {
+cv::Point3f mean3f(const std::vector<cv::Point3f> &points) {
     cv::Point3f sum = std::accumulate(points.begin(), points.end(),
                                       cv::Point3f(0.0f, 0.0f, 0.0f),
                                       std::plus<cv::Point3f>());
@@ -30,10 +30,10 @@ geometrics_t getMetricsFromXML(const std::string &ref_file) {
 
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt.get_child("RefPoints")) {
                     if (v.first == "Metric") {
-                        ret.lat_diff_in_xm = v.second.get<float>("lat_diff_in_xm", 1.0);
-                        ret.lat_diff_in_ym = v.second.get<float>("lat_diff_in_ym", 1.0);
-                        ret.long_diff_in_xm = v.second.get<float>("long_diff_in_xm", 1.0);
-                        ret.long_diff_in_ym = v.second.get<float>("long_diff_in_ym", 1.0);
+                        ret.x_diff_in_xm = v.second.get<float>("x_diff_in_xm", 1.0);
+                        ret.x_diff_in_ym = v.second.get<float>("x_diff_in_ym", 0.0);
+                        ret.y_diff_in_xm = v.second.get<float>("y_diff_in_xm", 0.0);
+                        ret.y_diff_in_ym = v.second.get<float>("y_diff_in_ym", 1.0);
                     }
                 }
     return ret;
@@ -50,16 +50,16 @@ RBCoordinate getRefCoordinateFromXML(int ref_id, const std::string &ref_file) {
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt.get_child("RefPoints")) {
                     if (v.first == "RefPoint" && v.second.get<int>("aruco_id", -1) == ref_id) {
                         found = true;
-                        ret.latitude = v.second.get<float>("latitude", RB_DEFAULT_REF_LATI);
-                        ret.longitude = v.second.get<float>("longitude", RB_DEFAULT_REF_LONG);
+                        ret.x = v.second.get<float>("x", RB_DEFAULT_REF_LATI);
+                        ret.y = v.second.get<float>("y", RB_DEFAULT_REF_LONG);
                     }
                 }
 
     if (!found) {
         PRINTF_THREAD_STAMP("Cannot get GPS information of reference marker from the given xml file.\n");
-        PRINTF_THREAD_STAMP("Use default longitude and latitude value instead.\n");
-        ret.longitude = RB_DEFAULT_REF_LONG;
-        ret.longitude = RB_DEFAULT_REF_LATI;
+        PRINTF_THREAD_STAMP("Use default y and x value instead.\n");
+        ret.y = RB_DEFAULT_REF_LONG;
+        ret.y = RB_DEFAULT_REF_LATI;
     }
 
     return ret;
@@ -72,8 +72,8 @@ RBCoordinate estimateRBCoordinate(const RBCoordinate &refCoordinate,
                                   const float delta_y,
                                   const float delta_z) {
     return {
-            refCoordinate.latitude + delta_x * geometrics.lat_diff_in_xm + delta_z * geometrics.lat_diff_in_ym,
-            refCoordinate.longitude + delta_x * geometrics.long_diff_in_xm + delta_z * geometrics.long_diff_in_ym};
+            refCoordinate.x + delta_x * geometrics.x_diff_in_xm + delta_z * geometrics.x_diff_in_ym,
+            refCoordinate.y + delta_x * geometrics.y_diff_in_xm + delta_z * geometrics.y_diff_in_ym};
 }
 
 void *RBDetectionThread(void *vargp) {
@@ -85,8 +85,8 @@ void *RBDetectionThread(void *vargp) {
 
     PRINTF_THREAD_STAMP("%s \t Get Reference ArUco maker id: %d\n", args->cam_addr.c_str(), ref_marker_id);
     RBCoordinate ref_gps = getRefCoordinateFromXML(ref_marker_id, args->hostProg->options.ref_gps_file);
-    PRINTF_THREAD_STAMP("%s \t GPS Coordinate of reference marker: latitude %lf \t longitude %f\n",
-                        args->cam_addr.c_str(), ref_gps.latitude, ref_gps.longitude);
+    PRINTF_THREAD_STAMP("%s \t GPS Coordinate of reference marker: x %lf \t y %f\n",
+                        args->cam_addr.c_str(), ref_gps.x, ref_gps.y);
     geometrics_t metrics = getMetricsFromXML(args->hostProg->options.ref_gps_file);
 
     PRINTF_THREAD_STAMP("%s \t Opening video stream......\n", args->cam_addr.c_str());
@@ -149,7 +149,7 @@ void *RBDetectionThread(void *vargp) {
                 PRINTF_THREAD_STAMP("%s \t Aruco index: %d \t At: (%lf, %lf, %lf)\t estimate gps: (%lf, %lf)\n",
                                     args->cam_addr.c_str(), i,
                                     mean.x, mean.y, mean.z,
-                                    coordinate.latitude, coordinate.longitude);
+                                    coordinate.x, coordinate.y);
                 if (test_cancel(&args->hostProg->term_mutex, &args->hostProg->term_flag)) {
                     PRINTF_THREAD_STAMP("Catch termination flag!\n");
                     pthread_exit(nullptr);
