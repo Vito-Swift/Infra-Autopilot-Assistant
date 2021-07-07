@@ -30,7 +30,7 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 #############################################
 # Open ports for SSH, debugger, and RTP
 #############################################
-EXPOSE 22 7777 8000
+EXPOSE 22 7777 8000 3307
 
 #############################################
 # Add debugger user for Clion Remote Dev
@@ -147,8 +147,13 @@ RUN cd batspro2 && mkdir build && cd build && cmake .. && make -j4 && make insta
 #############################################
 CMD ["/usr/sbin/sshd", "-D"]
 
+
+#############################################
+# Setup MySQL Server
+#############################################
+RUN apt install -y libmysqlcppconn-dev
+
 ADD ./.display /.display
-RUN apt install -y pcl-tools
 RUN cat /.display >> /etc/environment
 
 #############################################

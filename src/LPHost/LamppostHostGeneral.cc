@@ -245,10 +245,7 @@ void lamppost_program_run(LamppostHostProg *lamppostProg) {
     while (!test_cancel(&(lamppostProg->term_mutex), &(lamppostProg->term_flag))) {
         // determine whether the program needs to terminate
         PRINTF_STAMP("Main program is still alive...\n");
-        sleep(30);
-        pthread_mutex_lock(&(lamppostProg->term_mutex));
-        lamppostProg->term_flag = true;
-        pthread_mutex_unlock(&(lamppostProg->term_mutex));
+        // todo: if is root program, check the alive list..
     }
 }
 
