@@ -66,6 +66,7 @@ typedef struct {
     pthread_t recv_thread;
     // thread to launch hook communicator
     pthread_t hook_thread;
+    pthread_t lmpctl_thread;
 
     // Queue to store the coordinates of detected road blocks
     Queue<RBCoordinate> RoadBlockCoordinates;

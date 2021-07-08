@@ -58,7 +58,7 @@ def deploy():
                                                 "--config_file",
                                                 os.path.join(config_dir, "lamp{}.ini".format(lamp_id))],
                                                stdout=log_lamps[lamp_id],
-                                               stderr=subprocess.PIPE)
+                                               stderr=log_lamps[lamp_id])
 
 
 def clean():
