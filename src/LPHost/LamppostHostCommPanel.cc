@@ -56,6 +56,7 @@ void *LamppostHostSendThread(void *vargp) {
             PRINTF_ERR_STAMP("Send packet error: %s\n", std::strerror(errno));
         } else {
             PRINTF_THREAD_STAMP("Sent 1 backbone packet to root node.\n");
+            PRINTF_THREAD_STAMP("%d\n", addr);
         }
 
         usleep(BACKBONE_SEND_INTERVAL);
@@ -63,7 +64,6 @@ void *LamppostHostSendThread(void *vargp) {
     PRINTF_THREAD_STAMP("Catch termination flag, exit thread.\n");
     SFREE(dataBuf);
 }
-
 
 void *LamppostHostRecvThread(void *vargp) {
     auto args = (RecvThreadArgs_t *) vargp;
@@ -93,9 +93,11 @@ void *LamppostHostRecvThread(void *vargp) {
             memcpy(&tmp_packet, dataBuf, sizeof(LamppostBackbonePacket_t));
             PRINTF_THREAD_STAMP("Receive data from lamppost: %d\n", tmp_packet.src_addr);
 
-            if (std::find(args->hostProg->LamppostAliveList.begin(),
-                          args->hostProg->LamppostAliveList.end(), sender_addr)
-                != args->hostProg->LamppostAliveList.end()) {
+            if (std::find_if(args->hostProg->LamppostAliveList.begin(),
+                             args->hostProg->LamppostAliveList.end(),
+                             [&sender_addr](const std::pair<uint16_t, time_t> &element) {
+                                 return element.first == sender_addr;
+                             }) != args->hostProg->LamppostAliveList.end()) {
                 // the sender lamppost is already in the LamppostAliveList, update its time
                 pthread_mutex_lock(&args->hostProg->lal_modify_mutex);
                 for (auto &i : args->hostProg->LamppostAliveList) {
@@ -130,8 +132,41 @@ void *LamppostHostRecvThread(void *vargp) {
         }
         SFREE(dataBuf);
     } else {
-        // TODO: launch slave program, receive terminate flag from root node
+        int addr = parseNetAddrStr(args->hostProg->options.netaddr_str);
+        int port = BACKBONE_RECV_PORT_DEFAULT;
+        PRINTF_THREAD_STAMP("Control thread is invoked\n");
+        BATSSocket socket;
+        socket.init(addr);
+        socket.bind(port);
 
+        PRINTF_THREAD_STAMP("Control socket has been initialized.\n");
+        char *dataBuf = SMALLOC(char, 100);
+        int dataLen;
+
+        while (!test_cancel(&args->hostProg->term_mutex, &args->hostProg->term_flag)) {
+            bzero(dataBuf, 100);
+            uint16_t sender_addr;
+            uint8_t sender_port;
+            dataLen = socket.recv(dataBuf, sizeof(LamppostControlPacket_t), &sender_addr, &sender_port);
+
+            if (sender_addr == parseNetAddrStr(args->hostProg->options.root_net_addr)) {
+                PRINTF_THREAD_STAMP("Receive 1 control packet from root!.\n");
+                LamppostControlPacket_t tmp_packet;
+                memcpy(&tmp_packet, dataBuf, sizeof(LamppostControlPacket_t));
+
+                switch (tmp_packet.control_signal) {
+                    case CONTROL_SHUTDOWN_FLAG:
+                        PRINTF_THREAD_STAMP("Receive shutdown request from root!\n");
+                        pthread_mutex_lock(&args->hostProg->term_mutex);
+                        args->hostProg->term_flag = true;
+                        pthread_mutex_unlock(&args->hostProg->term_mutex);
+                        break;
+
+                    default:
+                        PRINTF_THREAD_STAMP("Unrecognized control flag: %d!\n", tmp_packet.control_signal);
+                }
+            }
+        }
     }
     PRINTF_THREAD_STAMP("Catch termination flag, exit thread\n");
 }
@@ -219,23 +254,41 @@ void *LamppostHostLmpCtlListenerThread(void *vargp) {
     mkfifo(lmpctl_fifo_name.c_str(), 0666);
 
     while (!test_cancel(&args->hostProg->term_mutex, &args->hostProg->term_flag)) {
-        fd = open(lmpctl_fifo_name.c_str(), O_WRONLY);
-
+        bzero(buf, 100);
+        fd = open(lmpctl_fifo_name.c_str(), O_RDONLY);
         read(fd, buf, 100);
 
         unsigned char lmpctl_command = buf[0];
+        int encMethod = BTP_BATS_ENC_SMALL;
+        int batchSize = 16;
+        auto param = new BATSEncParam(encMethod, batchSize, 8);
+
+        BATSSocket socket;
+        int addr = parseNetAddrStr(args->hostProg->options.netaddr_str);
+        socket.init(addr);
+        socket.bind(BACKBONE_CTRL_SEND_PORT);
+        char *dataBuf = SMALLOC(char, 100);
 
         switch (lmpctl_command) {
             case LMPCTL_STAT_FLAG:
                 break;
 
-            case LMPCTL_SHUTDOWN_FLAG:
+            case LMPCTL_SHUTDOWN_FLAG: {
                 PRINTF_THREAD_STAMP("Get shutdown request from lmpctl program!\n");
                 PRINTF_THREAD_STAMP("Send shutdown request to all slave programs...\n");
                 pthread_mutex_lock(&args->hostProg->lal_modify_mutex);
-                // TODO: kill all threads
                 for (auto &i: args->hostProg->LamppostAliveList) {
+                    bzero(dataBuf, 100);
                     uint16_t lamp_addr = i.first;
+                    LamppostControlPacket_t tmp_packet;
+                    tmp_packet.control_signal = CONTROL_SHUTDOWN_FLAG;
+                    memcpy(dataBuf, &tmp_packet, sizeof(LamppostControlPacket_t));
+                    if (socket.send(dataBuf, sizeof(LamppostControlPacket_t), lamp_addr, BACKBONE_RECV_PORT_DEFAULT,
+                                    param, BP_PROTOCOL_BTP) == -1) {
+                        PRINTF_ERR_STAMP("Send control packet error: %s\n", std::strerror(errno));
+                    } else {
+                        PRINTF_THREAD_STAMP("Sent control packet to node: %d\n", lamp_addr);
+                    }
                 }
                 pthread_mutex_unlock(&args->hostProg->lal_modify_mutex);
 
@@ -244,10 +297,12 @@ void *LamppostHostLmpCtlListenerThread(void *vargp) {
                 args->hostProg->term_flag = true;
                 pthread_mutex_unlock(&args->hostProg->term_mutex);
                 break;
+            }
 
             default:
                 PRINTF_ERR_STAMP("Unrecognized command: %d\n", lmpctl_command);
-                break;
+
         }
+        SFREE(dataBuf);
     }
 }

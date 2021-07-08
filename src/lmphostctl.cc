@@ -52,6 +52,14 @@ int main(int argc, char **argv) {
 
             } else if (command == "stop") {
                 // shutdown the system
+                cout << "Send shutdown signal to the system" << endl;
+                mkfifo(lmpctl_fifo_name.c_str(), 0666);
+                char buf[100];
+                int fd = open(lmpctl_fifo_name.c_str(), O_WRONLY);
+                buf[0] = LMPCTL_SHUTDOWN_FLAG;
+                write(fd, &buf, 1);
+                close(fd);
+                return 0;
 
             } else if (command == "stat") {
                 // show statistic message
@@ -61,7 +69,7 @@ int main(int argc, char **argv) {
 
             } else {
                 // undefined behavior
-
+                cerr << "undefined command type: " << command << endl;
                 return 1;
             }
         }

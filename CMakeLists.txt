@@ -97,6 +97,8 @@ target_include_directories(LamppostHost
 add_executable(lmphostctl
         src/lmphostctl.cc)
 target_link_libraries(lmphostctl ${Boost_LIBRARIES})
+target_include_directories(lmphostctl
+        PRIVATE include)
 
 ################################################################
 # Exec: Build Lamppost Hook Program

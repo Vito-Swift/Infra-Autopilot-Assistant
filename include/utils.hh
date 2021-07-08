@@ -43,12 +43,13 @@
 #define BACKBONE_RECV_PORT_DEFAULT 200
 #define BACKBONE_SEND_INTERVAL 100UL
 #define BACKBONE_ALIVE_INTERVAL 20UL
+#define BACKBONE_CTRL_SEND_PORT 202
 
 // default values for Hook tcp network configuration
 #define HOOK_TCP_PORT 1020
 #define HOOK_MAX_PACKET_SIZE 100000UL
 #define HOOK_CONN_RETRY_INTERVAL 1
-#define HOOK_MAX_COORD_NUM 20UL
+#define HOOK_MAX_COORD_NUM (20UL)
 #define HOOK_PACKET_INTERVAL 1
 
 // defines for road blocks detections
@@ -98,6 +99,10 @@ typedef struct LamppostBackbonePacket {
     uint32_t src_addr;
     bool _terminate;
 } LamppostBackbonePacket_t;
+
+typedef struct {
+    uint32_t control_signal;
+} LamppostControlPacket_t;
 
 typedef struct HookPacket {
     // RB Coordinates
