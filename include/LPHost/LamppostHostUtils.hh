@@ -72,16 +72,15 @@ typedef struct {
     Queue<RBCoordinate> RoadBlockCoordinates;
 
     // Array to store the received coordinates (on root program)
-    Vector<RBCoordinate> CollectedRBCoordinates;
+    std::vector<std::pair<RBCoordinate, time_t>> CollectedRBCoordinates;
 
     // Array to store the address of alive lamppost node (on root program）
     std::vector<std::pair<uint16_t, time_t>> LamppostAliveList;
     pthread_mutex_t lal_modify_mutex;
 
     mutable std::mutex crb_mutex;
-    std::condition_variable crb_c;
 
-    // cancelation flags
+    // cancellation flags
     pthread_mutex_t term_mutex;
     bool term_flag;
 } LamppostHostProg;

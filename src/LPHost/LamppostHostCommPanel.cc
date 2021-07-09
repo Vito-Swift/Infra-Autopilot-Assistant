@@ -56,7 +56,6 @@ void *LamppostHostSendThread(void *vargp) {
             PRINTF_ERR_STAMP("Send packet error: %s\n", std::strerror(errno));
         } else {
             PRINTF_THREAD_STAMP("Sent 1 backbone packet to root node.\n");
-            PRINTF_THREAD_STAMP("%d\n", addr);
         }
 
         usleep(BACKBONE_SEND_INTERVAL);
@@ -91,7 +90,7 @@ void *LamppostHostRecvThread(void *vargp) {
             dataLen = socket.recv(dataBuf, BACKBONE_PACKET_SIZE, &sender_addr, &sender_port);
             LamppostBackbonePacket_t tmp_packet;
             memcpy(&tmp_packet, dataBuf, sizeof(LamppostBackbonePacket_t));
-            PRINTF_THREAD_STAMP("Receive data from lamppost: %d\n", tmp_packet.src_addr);
+            PRINTF_THREAD_STAMP("Receive data from lamppost: %d\n", sender_addr);
 
             if (std::find_if(args->hostProg->LamppostAliveList.begin(),
                              args->hostProg->LamppostAliveList.end(),
@@ -113,11 +112,12 @@ void *LamppostHostRecvThread(void *vargp) {
             }
 
             // Enqueue data into collected Roadblock Coordinates
+            // todo: update the detected time of the same road block and etc.
             bool isNewRoadBlock = true;
-            std::lock_guard<std::mutex> lock(args->hostProg->crb_mutex);
-            for (int i = 0; i < args->hostProg->CollectedRBCoordinates.size(); i++) {
-                auto distance = calculateDistance(tmp_packet.coord, args->hostProg->CollectedRBCoordinates[i]);
-                if (distance >= RB_SEGMENT_THRESHOLD) {
+            std::unique_lock<std::mutex> lock(args->hostProg->crb_mutex);
+            for (auto &CollectedRBCoordinate : args->hostProg->CollectedRBCoordinates) {
+                auto distance = calculateDistance(tmp_packet.coord, CollectedRBCoordinate.first);
+                if (distance <= RB_SEGMENT_THRESHOLD) {
                     isNewRoadBlock = false;
                     break;
                 }
@@ -126,9 +126,9 @@ void *LamppostHostRecvThread(void *vargp) {
                 PRINTF_THREAD_STAMP("Lamppost %d has detected a new road block at (%lf, %lf), "
                                     "appending into array: CollectedRBCoordinates.\n",
                                     tmp_packet.src_addr, tmp_packet.coord.x, tmp_packet.coord.y);
-                args->hostProg->CollectedRBCoordinates.push_back(tmp_packet.coord);
+                args->hostProg->CollectedRBCoordinates.emplace_back(tmp_packet.coord, time(nullptr));
             }
-            args->hostProg->crb_c.notify_one();
+            lock.unlock();
         }
         SFREE(dataBuf);
     } else {
@@ -236,7 +236,7 @@ void *LamppostHostCommHookSendThread(void *vargp) {
         std::lock_guard<std::mutex> sendlock(args->hostProg->crb_mutex);
         tmp_packet.coords_num = args->hostProg->CollectedRBCoordinates.size();
         for (int i = 0; i < tmp_packet.coords_num; i++) {
-            tmp_packet.coords[i] = args->hostProg->CollectedRBCoordinates[i];
+            tmp_packet.coords[i] = args->hostProg->CollectedRBCoordinates[i].first;
         }
         args->hostProg->crb_c.notify_one();
         memcpy(dataBuf, &tmp_packet, sizeof(HookPacket_t));

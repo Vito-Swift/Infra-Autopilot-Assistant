@@ -254,26 +254,6 @@ void lamppost_program_run(LamppostHostProg *lamppostProg) {
         // determine whether the program needs to terminate
         PRINTF_STAMP("Main program is still alive...\n");
 
-        if (lamppostProg->options.is_root_node) {
-            pthread_mutex_lock(&lamppostProg->lal_modify_mutex);
-            time_t now = time(nullptr);
-            for (int i = 0; i < lamppostProg->LamppostAliveList.size(); i++) {
-                if (now - lamppostProg->LamppostAliveList[i].second >= BACKBONE_ALIVE_INTERVAL) {
-                    PRINTF_THREAD_STAMP("Node %d has been disconnected for %d seconds, remove it from alive list\n",
-                                        lamppostProg->LamppostAliveList[i].first, BACKBONE_ALIVE_INTERVAL);
-                    lamppostProg->LamppostAliveList.erase(lamppostProg->LamppostAliveList.begin() + i);
-                }
-            }
-            if (!lamppostProg->LamppostAliveList.empty()) {
-                std::cout << "Alive lampposts: ";
-                for (auto &i: lamppostProg->LamppostAliveList) {
-                    std::cout << i.first << " ";
-                }
-                std::cout << std::endl;
-            }
-
-            pthread_mutex_unlock(&lamppostProg->lal_modify_mutex);
-        }
         sleep(3);
     }
 }

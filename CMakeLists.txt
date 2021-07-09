@@ -65,6 +65,7 @@ add_executable(LamppostHost
         src/LPHost/LamppostHostGeneral.cc
         src/LPHost/LamppostHostRBDetection.cc
         src/LPHost/LamppostHostCommPanel.cc
+        src/LPHost/LamppostHostBackendConn.cc
         src/Control/CtrlPathSearch.cc
         src/Control/CtrlThread.cc
         src/Control/CtrlCommPanel.cc
@@ -73,6 +74,7 @@ add_executable(LamppostHost
         include/LPHost/LamppostHostGeneral.hh
         include/LPHost/LamppostHostRBDetection.hh
         include/LPHost/LamppostHostUtils.hh
+        include/LPHost/LamppostHostBackendConn.hh
         include/Control/CtrlPathSearch.hh
         include/Control/CtrlCommPanel.hh
         include/Control/CtrlGeneral.hh
