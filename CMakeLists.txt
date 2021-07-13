@@ -66,18 +66,12 @@ add_executable(LamppostHost
         src/LPHost/LamppostHostRBDetection.cc
         src/LPHost/LamppostHostCommPanel.cc
         src/LPHost/LamppostHostBackendConn.cc
-        src/Control/CtrlPathSearch.cc
-        src/Control/CtrlThread.cc
-        src/Control/CtrlCommPanel.cc
         src/utils.cc
         include/LPHost/LamppostHostCommPanel.hh
         include/LPHost/LamppostHostGeneral.hh
         include/LPHost/LamppostHostRBDetection.hh
         include/LPHost/LamppostHostUtils.hh
         include/LPHost/LamppostHostBackendConn.hh
-        include/Control/CtrlPathSearch.hh
-        include/Control/CtrlCommPanel.hh
-        include/Control/CtrlGeneral.hh
         include/utils.hh)
 target_link_libraries(LamppostHost
         btp
@@ -86,18 +80,26 @@ target_link_libraries(LamppostHost
         ${OpenCV_LIBS}
         aruco
         marker_mapper
-        Threads::Threads)
+        Threads::Threads
+        mysqlcppconn)
 target_include_directories(LamppostHost
         PRIVATE include
         PRIVATE pthread
         PRIVATE "/usr/local/include/aruco"
-        PRIVATE "/usr/local/include/maker_mapper")
+        PRIVATE "/usr/local/include/maker_mapper"
+        PRIVATE "/usr/include")
 
 ################################################################
 # Exec: Build Lamppost Host controller
 ################################################################
 add_executable(lmphostctl
-        src/lmphostctl.cc)
+        src/lmphostctl.cc
+        src/Control/CtrlPathSearch.cc
+        src/Control/CtrlGeneral.cc
+        src/utils.cc
+        include/Control/CtrlPathSearch.hh
+        include/Control/CtrlGeneral.hh
+        include/utils.hh)
 target_link_libraries(lmphostctl ${Boost_LIBRARIES})
 target_include_directories(lmphostctl
         PRIVATE include)

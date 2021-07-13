@@ -11,11 +11,12 @@
 #include <cppconn/resultset.h>
 #include <cppconn/exception.h>
 #include <cppconn/statement.h>
+#include <cppconn/prepared_statement.h>
 
 typedef struct {
     LamppostHostProg *prog;
 } LamppostHostBackendArgs_t;
 
-void LamppostHostBackendThread(void *vargs);
+void* LamppostHostBackendThread(void *vargs);
 
 #endif //LAMPPOSTAUTOCARDEMO_LAMPPOSTHOSTBACKENDCONN_HH

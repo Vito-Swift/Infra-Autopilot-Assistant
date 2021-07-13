@@ -71,6 +71,7 @@ typedef struct {
     // thread to launch hook communicator
     pthread_t hook_thread;
     pthread_t lmpctl_thread;
+    pthread_t backend_thread;
 
     // Queue to store the coordinates of detected road blocks
     Queue<RBCoordinate> RoadBlockCoordinates;
@@ -80,7 +81,7 @@ typedef struct {
 
     // Array to store the address of alive lamppost node (on root program）
     std::vector<std::pair<uint16_t, time_t>> LamppostAliveList;
-    pthread_mutex_t lal_modify_mutex;
+    mutable std::mutex lal_modify_mutex;
 
     mutable std::mutex crb_mutex;
 

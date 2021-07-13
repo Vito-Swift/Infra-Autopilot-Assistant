@@ -26,6 +26,7 @@
 
 #include "LamppostHostUtils.hh"
 #include "LamppostHostCommPanel.hh"
+#include "LamppostHostBackendConn.hh"
 #include "LamppostHostRBDetection.hh"
 
 /*  ********************************************************

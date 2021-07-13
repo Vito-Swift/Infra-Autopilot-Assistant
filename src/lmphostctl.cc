@@ -4,13 +4,10 @@
 
 #include <iostream>
 #include <boost/program_options.hpp>
-#include <exception>
-#include <cstring>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
 
+#include "Control/CtrlPathSearch.hh"
 #include "utils.hh"
 
 using std::cout;
@@ -26,7 +23,9 @@ int main(int argc, char **argv) {
     desc.add_options()
             ("help,h", "show this message")
             ("service,c", boost::program_options::value<std::string>()->value_name("COMMAND"), "[start|stop|stat|log]")
-            ("config,c", config_option, "must specify if -service start is invoked");
+            ("config,c", config_option, "must specify if -service start is invoked")
+            ("destx,x", boost::program_options::value<double>()->value_name("X"), "x coordinates of destination")
+            ("desty,y", boost::program_options::value<double>()->value_name("Y"), "y coordinates of destination");
 
     try {
         boost::program_options::variables_map vm;
@@ -60,6 +59,17 @@ int main(int argc, char **argv) {
                 write(fd, &buf, 1);
                 close(fd);
                 return 0;
+
+            } else if (command == "demo") {
+                // start demo
+                if (vm["destx"].empty() || vm["desty"].empty()) {
+                    cerr << "error: must provide destx and desty when demo mode" << std::endl;
+                    return 1;
+                }
+
+                double dest_x = vm["destx"].as<double>();
+                double dest_y = vm["desty"].as<double>();
+
 
             } else if (command == "stat") {
                 // show statistic message

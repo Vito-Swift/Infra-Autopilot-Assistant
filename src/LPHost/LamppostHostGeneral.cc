@@ -119,7 +119,7 @@ void parse_configuration_file(Options *options) {
 //        options->ctrl_zigbee_pan = GetPropertyTree<int>(pt, "Hook.CtrlZigbeePan", true, nullptr);
 //        options->root_zigbee_addr = GetPropertyTree<int>(pt, "Hook.RootZigbeeAddr", true, nullptr);
 //        options->root_zigbee_pan = GetPropertyTree<int>(pt, "Hook.RootZigbeePan", true, nullptr);
-        // todo: parse DB Section
+        // parse DB Section
         options->DB_HOST = GetPropertyTree<std::string>(pt, "Database.Host", true, nullptr);
         options->DB_USER = GetPropertyTree<std::string>(pt, "Database.User", true, nullptr);
         options->DB_PASSWD = GetPropertyTree<std::string>(pt, "Database.Password", true, nullptr);
@@ -256,6 +256,12 @@ void lamppost_program_run(LamppostHostProg *lamppostProg) {
         pthread_create(&lamppostProg->lmpctl_thread, nullptr, LamppostHostLmpCtlListenerThread,
                        (void *) &lmpCtlListenerArgs);
         pthread_detach(lamppostProg->lmpctl_thread);
+
+        PRINTF_STAMP("Launch daemon thread to update data in database...\n");
+        LamppostHostBackendArgs_t backendArgs{.prog=lamppostProg};
+        pthread_create(&lamppostProg->backend_thread, nullptr, LamppostHostBackendThread,
+                       (void *) &backendArgs);
+        pthread_detach(lamppostProg->backend_thread);
     }
 
     while (!test_cancel(&(lamppostProg->term_mutex), &(lamppostProg->term_flag))) {
