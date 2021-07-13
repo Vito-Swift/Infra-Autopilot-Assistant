@@ -38,6 +38,10 @@ typedef struct {
     bool mock_detection;                // if this option is enabled, road block detection will be mocked
     char *config_file_path;             // path to configuration file
     bool is_root_node;                  // true if this lamppost is root node
+    std::string DB_HOST;                // host address of mysql database
+    std::string DB_USER;                // user name of mysql database
+    std::string DB_PASSWD;              // password of mysql database
+    std::string DB_DATABASE;            // name of applied database
 } Options;
 enum opt_types {
     OP_CONFIG_PATH = 1,

@@ -146,8 +146,9 @@ void *RBDetectionThread(void *vargp) {
             for (int i : detectedArucoMarkerIDList) {
                 cv::Point3f mean = mean3f(arucoMarkerMapper->getMarkerMap().getMarker3DInfo(i).points);
                 RBCoordinate coordinate = estimateRBCoordinate(ref_gps, metrics, mean.x, mean.y, mean.z);
+                coordinate.marker_id = i;
                 PRINTF_THREAD_STAMP("%s \t Aruco index: %d \t At: (%lf, %lf, %lf)\t estimate gps: (%lf, %lf)\n",
-                                    args->cam_addr.c_str(), i,
+                                    args->cam_addr.c_str(), coordinate.marker_id,
                                     mean.x, mean.y, mean.z,
                                     coordinate.x, coordinate.y);
                 if (test_cancel(&args->hostProg->term_mutex, &args->hostProg->term_flag)) {
@@ -169,7 +170,7 @@ void *RBDetectionMockThread(void *vargp) {
     auto args = (RBDetectionThreadArgs_t *) vargp;
     while (!(test_cancel(&args->hostProg->term_mutex, &args->hostProg->term_flag))) {
         PRINTF_THREAD_STAMP("Mock add RBCoordinate into queue\n");
-        args->hostProg->RoadBlockCoordinates.enqueue(RBCoordinate(0, 0));
+        args->hostProg->RoadBlockCoordinates.enqueue(RBCoordinate(0, 0, 0));
         sleep(1);
     }
     PRINTF_THREAD_STAMP("Catch termination flag, exit thread\n");
