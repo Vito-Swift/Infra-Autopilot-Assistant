@@ -98,27 +98,28 @@ void *LamppostHostRecvThread(void *vargp) {
                                  return element.first == sender_addr;
                              }) != args->hostProg->LamppostAliveList.end()) {
                 // the sender lamppost is already in the LamppostAliveList, update its time
-                pthread_mutex_lock(&args->hostProg->lal_modify_mutex);
+                std::unique_lock<std::mutex> lock(args->hostProg->lal_modify_mutex);
                 for (auto &i : args->hostProg->LamppostAliveList) {
                     if (i.first == sender_addr)
                         i.second = time(nullptr);
                 }
-                pthread_mutex_unlock(&args->hostProg->lal_modify_mutex);
+                lock.unlock();
             } else {
                 // the sender lamppost does not in the LamppostAliveList, insert
-                pthread_mutex_lock(&args->hostProg->lal_modify_mutex);
+                std::unique_lock<std::mutex> lock(args->hostProg->lal_modify_mutex);
                 args->hostProg->LamppostAliveList.emplace_back(sender_addr, time(nullptr));
-                pthread_mutex_unlock(&args->hostProg->lal_modify_mutex);
+                lock.unlock();
             }
 
             // Enqueue data into collected Roadblock Coordinates
-            // todo: update the detected time of the same road block and etc.
             bool isNewRoadBlock = true;
             std::unique_lock<std::mutex> lock(args->hostProg->crb_mutex);
             for (auto &CollectedRBCoordinate : args->hostProg->CollectedRBCoordinates) {
                 auto distance = calculateDistance(tmp_packet.coord, CollectedRBCoordinate.first);
                 if (distance <= RB_SEGMENT_THRESHOLD ||
                     tmp_packet.coord.marker_id == CollectedRBCoordinate.first.marker_id) {
+                    // update the detected time of the same road block
+                    CollectedRBCoordinate.second = time(nullptr);
                     isNewRoadBlock = false;
                     break;
                 }
@@ -277,7 +278,7 @@ void *LamppostHostLmpCtlListenerThread(void *vargp) {
             case LMPCTL_SHUTDOWN_FLAG: {
                 PRINTF_THREAD_STAMP("Get shutdown request from lmpctl program!\n");
                 PRINTF_THREAD_STAMP("Send shutdown request to all slave programs...\n");
-                pthread_mutex_lock(&args->hostProg->lal_modify_mutex);
+                std::unique_lock<std::mutex> lock(args->hostProg->lal_modify_mutex);
                 for (auto &i: args->hostProg->LamppostAliveList) {
                     bzero(dataBuf, 100);
                     uint16_t lamp_addr = i.first;
@@ -291,7 +292,7 @@ void *LamppostHostLmpCtlListenerThread(void *vargp) {
                         PRINTF_THREAD_STAMP("Sent control packet to node: %d\n", lamp_addr);
                     }
                 }
-                pthread_mutex_unlock(&args->hostProg->lal_modify_mutex);
+                lock.unlock();
 
                 PRINTF_THREAD_STAMP("Set shutdown status on local...\n");
                 pthread_mutex_lock(&args->hostProg->term_mutex);
