@@ -117,7 +117,8 @@ void *LamppostHostRecvThread(void *vargp) {
             std::unique_lock<std::mutex> lock(args->hostProg->crb_mutex);
             for (auto &CollectedRBCoordinate : args->hostProg->CollectedRBCoordinates) {
                 auto distance = calculateDistance(tmp_packet.coord, CollectedRBCoordinate.first);
-                if (distance <= RB_SEGMENT_THRESHOLD) {
+                if (distance <= RB_SEGMENT_THRESHOLD ||
+                    tmp_packet.coord.marker_id == CollectedRBCoordinate.first.marker_id) {
                     isNewRoadBlock = false;
                     break;
                 }
@@ -233,12 +234,12 @@ void *LamppostHostCommHookSendThread(void *vargp) {
         tmp_packet.root_zigbee_addr = args->hostProg->options.root_zigbee_addr;
         tmp_packet.flag = (args->hostProg->term_flag);
 
-        std::lock_guard<std::mutex> sendlock(args->hostProg->crb_mutex);
+        std::unique_lock<std::mutex> sendlock(args->hostProg->crb_mutex);
         tmp_packet.coords_num = args->hostProg->CollectedRBCoordinates.size();
         for (int i = 0; i < tmp_packet.coords_num; i++) {
             tmp_packet.coords[i] = args->hostProg->CollectedRBCoordinates[i].first;
         }
-        args->hostProg->crb_c.notify_one();
+        sendlock.unlock();
         memcpy(dataBuf, &tmp_packet, sizeof(HookPacket_t));
         send(sockfd, dataBuf, HOOK_MAX_PACKET_SIZE, 0);
         PRINTF_THREAD_STAMP("Sent 1 packet to hook node.\n");

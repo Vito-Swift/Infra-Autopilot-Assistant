@@ -119,6 +119,11 @@ void parse_configuration_file(Options *options) {
 //        options->ctrl_zigbee_pan = GetPropertyTree<int>(pt, "Hook.CtrlZigbeePan", true, nullptr);
 //        options->root_zigbee_addr = GetPropertyTree<int>(pt, "Hook.RootZigbeeAddr", true, nullptr);
 //        options->root_zigbee_pan = GetPropertyTree<int>(pt, "Hook.RootZigbeePan", true, nullptr);
+        // todo: parse DB Section
+        options->DB_HOST = GetPropertyTree<std::string>(pt, "Database.Host", true, nullptr);
+        options->DB_USER = GetPropertyTree<std::string>(pt, "Database.User", true, nullptr);
+        options->DB_PASSWD = GetPropertyTree<std::string>(pt, "Database.Password", true, nullptr);
+        options->DB_DATABASE = GetPropertyTree<std::string>(pt, "Database.Database", true, nullptr);
     }
 }
 
@@ -129,11 +134,14 @@ void print_option_setting(Options *options) {
     PRINTF_STAMP("\t\tRoot BATS Addr: %s\n", options->root_net_addr.c_str());
     PRINTF_STAMP("\t\tRoot BATS Port: %d\n", options->root_port);
     PRINTF_STAMP("\t\tRoot Node: %s\n", options->is_root_node ? "true" : "false");
-//    if (options->is_root_node) {
+    if (options->is_root_node) {
 //        PRINTF_STAMP("\t\tHook addr: %s\t port: %d\n", options->hook_ip_addr.c_str(), options->hook_ip_port);
 //        PRINTF_STAMP("\t\tControl node PAN: %d\t addr: %d\n", options->ctrl_zigbee_pan, options->ctrl_zigbee_addr);
 //        PRINTF_STAMP("\t\tRoot node PAN: %d\t addr: %d\n", options->root_zigbee_pan, options->root_zigbee_addr);
-//    }
+        PRINTF_STAMP("\t\tDatabase host: %s\n", options->DB_HOST.c_str());
+        PRINTF_STAMP("\t\tDatabase user: %s\n", options->DB_USER.c_str());
+        PRINTF_STAMP("\t\tDatabase name: %s\n", options->DB_DATABASE.c_str());
+    }
     if (!options->mock_detection) {
         PRINTF_STAMP("\t\tCamera 1 addr: %s\n", options->cam1_addr.c_str());
         PRINTF_STAMP("\t\tCamera 2 addr: %s\n", options->cam2_addr.c_str());

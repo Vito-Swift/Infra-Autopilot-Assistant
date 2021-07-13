@@ -57,6 +57,7 @@
 #define RB_DEFAULT_REF_LONG (1.0)
 #define RB_DEFAULT_REF_LATI (0.0)
 #define RB_SAFE_BOUNDING (1UL)
+#define RB_ALIVE_INTERVAL 3
 
 // defines for path searching algorithm
 const float step_size = 0.1;    // for each single step, the robot moves 0.1 (meter)
@@ -73,6 +74,11 @@ const float step_size = 0.1;    // for each single step, the robot moves 0.1 (me
 #define LMPCTL_SHUTDOWN_FLAG 3
 const std::string lmpctl_fifo_name = "/tmp/lmpctl_fifo";
 
+// default values of Database system
+const std::string detected_road_blocks_table = "RoadBlocks";
+const std::string planned_route_table = "Route";
+const std::string alive_lamppost_table = "Lamppost";
+
 // default values for control channel
 #define CONTROL_SHUTDOWN_FLAG (LMPCTL_SHUTDOWN_FLAG)
 
@@ -88,10 +94,13 @@ const std::string lmpctl_fifo_name = "/tmp/lmpctl_fifo";
 typedef struct RBCoordinate {
     double x;
     double y;
+    int marker_id;
 
-    RBCoordinate(double gps_x, double gps_y) : x(gps_x), y(gps_y) {}
+    RBCoordinate(double gps_x, double gps_y, int id) : x(gps_x), y(gps_y), marker_id(id) {}
 
-    RBCoordinate() : x(0), y(0) {}
+    RBCoordinate(double gps_x, double gps_y) : x(gps_x), y(gps_y), marker_id(0) {}
+
+    RBCoordinate() : x(0), y(0), marker_id(0) {}
 } RBCoordinate;
 
 typedef struct LamppostBackbonePacket {
@@ -406,6 +415,13 @@ inline bool test_cancel(pthread_mutex_t *mutex, bool *val) {
     ret = *val;
     pthread_mutex_unlock(mutex);
     return ret;
+}
+
+inline std::string bats_addr_to_str(int16_t addr) {
+    return std::to_string((addr >> 24) & 0xFF) + "." +
+           std::to_string((addr >> 16) & 0xFF) + "." +
+           std::to_string((addr >> 8) & 0xFF) + "." +
+           std::to_string(addr & 0xFF);
 }
 
 #endif //LAMPPOSTAUTOCARDEMO_UTILS_HH
