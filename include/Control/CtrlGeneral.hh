@@ -18,7 +18,7 @@
 //
 //      3. generate a binary roadblock map with size
 //              (ActualHeight / SizeOfGrid) * (ActualWidth / SizeOfGrid)
-//         where the region of roadblocks are marked with `1`
+//         where the region of roadblocks are marked with `0`
 //
 //      4. generate a path by A* algorithm and refine the path by
 //          gradient descent algorithm;
@@ -44,7 +44,7 @@ namespace Control {
         std::pair<double, double> init_point;
         std::pair<double, double> dest_point;
         sql::Connection *conn;
-        std::string DB_NAME;
+        std::string db;
     } ControlManager_t;
 
     void generate_roadblock_map(ControlManager_t *cm);

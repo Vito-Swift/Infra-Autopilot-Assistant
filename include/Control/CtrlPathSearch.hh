@@ -12,6 +12,7 @@
 #include <queue>
 #include <set>
 #include <stack>
+#include <bits/stdc++.h>
 #include <tuple>
 
 using namespace std;
@@ -19,21 +20,19 @@ using namespace std;
 namespace Control {
 // Creating a shortcut for int, int pair type
     typedef pair<int, int> Pair;
-// Creating a shortcut for tuple<int, int, int> type
-    typedef tuple<double, int, int> Tuple;
 
-// A structure to hold the neccesary parameters
+// Creating a shortcut for pair<int, pair<int, int>> type
+    typedef pair<double, pair<int, int> > pPair;
+
+// A structure to hold the necessary parameters
     struct cell {
         // Row and Column index of its parent
-        Pair parent;
+        // Note that 0 <= i <= ROW-1 & 0 <= j <= COL-1
+        int parent_i, parent_j;
         // f = g + h
         double f, g, h;
-
-        cell() : parent(-1, -1), f(-1), g(-1), h(-1) {}
     };
 
-    bool aStarSearch(int **grid, size_t COL, size_t ROW,
-                     const Pair &src, const Pair &dest,
-                     vector<Pair> &path);
+    bool aStarSearch(int **grid, int COL, int ROW, Pair src, Pair dest, std::vector<std::pair<int, int>>& path);
 }
 #endif //LAMPPOSTAUTOCARDEMO_CTRLPATHSEARCH_HH

@@ -21,15 +21,17 @@ namespace Control {
         // calculate map size and allocate memory
         cm->map_row_count = floor(cm->mapinfo.height / cm->mapinfo.grid_size);
         cm->map_col_count = floor(cm->mapinfo.width / cm->mapinfo.grid_size);
+        cm->map = (int **) malloc(cm->map_row_count * sizeof(int *));
         for (int i = 0; i < cm->map_row_count; i++)
             cm->map[i] = SMALLOC(int, cm->map_col_count);
 
-        // reset map to all 0
+        // reset map to all 1
         for (int i = 0; i < cm->map_row_count; i++)
-            bzero(cm->map[i], cm->map_col_count);
+            for (int j = 0; j < cm->map_col_count; j++)
+                cm->map[i][j] = 1;
 
         // connect to sql database and get the coordinates of detected roadblocks
-        cm->conn->setSchema(cm->DB_NAME);
+        cm->conn->setSchema(cm->db);
         sql::ResultSet *resultSet;
         sql::PreparedStatement *pstmt = cm->conn->prepareStatement("SELECT x,y FROM " + detected_road_blocks_table);
         resultSet = pstmt->executeQuery();
@@ -48,7 +50,7 @@ namespace Control {
                 for (int j = 0; j < cm->map_col_count; j++) {
                     auto world_coord = map_coord_to_world(i, j, cm->mapinfo);
                     if (calculateDistance(world_coord, roadblock) <= RB_SAFE_BOUNDING) {
-                        cm->map[i][j] = 1;
+                        cm->map[i][j] = 0;
                     }
                 }
         }
@@ -100,17 +102,31 @@ namespace Control {
 
         // get initialize point and dest point
         pair<double, double> init_point = {5, 0};
+        auto map_coord_start = world_coord_to_map(init_point.first, init_point.second, cm->mapinfo);
+        auto map_coord_dest = world_coord_to_map(cm->dest_point.first, cm->dest_point.second, cm->mapinfo);
+        cout << "\t from: (" << init_point.first << ", " << init_point.second << ") to ("
+             << cm->dest_point.first << ", " << cm->dest_point.second << ")" << endl;
+        cout << "\t transformed map from: (" << map_coord_start.first << ", " << map_coord_start.second << ") to ("
+             << map_coord_dest.first << ", " << map_coord_dest.second << ")" << endl;
+
         std::vector<std::pair<int, int>> plannedRoute;
-        if (!aStarSearch(cm->map, cm->map_col_count, cm->map_row_count, init_point, cm->dest_point, plannedRoute))
+        if (!aStarSearch(cm->map, cm->map_col_count, cm->map_row_count,
+                         map_coord_start, map_coord_dest,
+                         plannedRoute))
             return false;
 
         cm->plannedRoute.clear();
         for (auto &pace : plannedRoute) {
-            cm->plannedRoute.emplace_back(map_coord_to_world(pace.first, pace.second, cm->mapinfo));
+            cm->plannedRoute.push_back(map_coord_to_world(pace.first, pace.second, cm->mapinfo));
         }
 
         cout << "Optimizing generated route" << endl;
         refine_path(cm->plannedRoute);
+        printf("\nOptimized route is:");
+        for (auto &pace : cm->plannedRoute) {
+            printf(" -> (%lf, %lf)", pace.first, pace.second);
+        }
+        printf("\n");
 
         cout << "Route is generated successfully" << endl;
         return true;
@@ -118,6 +134,7 @@ namespace Control {
 
     void store_path_to_server(ControlManager_t *cm) {
         cout << "Uploading planned path to the database" << endl;
+        cm->conn->setSchema(cm->db);
 
         // reset SQL table
         sql::Statement *statement = cm->conn->createStatement();
@@ -145,6 +162,7 @@ namespace Control {
         // free map memory
         for (int i = 0; i < cm->map_row_count; i++)
             SFREE(cm->map[i]);
+        SFREE(cm->map);
     }
 
     void start_robomaster(ControlManager_t *cm) {
