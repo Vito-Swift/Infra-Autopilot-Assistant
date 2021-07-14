@@ -109,10 +109,4 @@ inline void print_usage(const char *prg_name) {
            prg_name, prg_name);
 }
 
-
-inline double calculateDistance(const RBCoordinate &c1, const RBCoordinate &c2) {
-    double d = pow(c1.x - c2.x, 2) + pow(c1.y - c2.y, 2);
-    return sqrt(d);
-}
-
 #endif //LAMPPOSTAUTOCARDEMO_LAMPPOSTHOSTUTILS_HH
