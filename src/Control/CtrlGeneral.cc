@@ -148,13 +148,12 @@ namespace Control {
 
         // insert planned path into the sql database
         sql::PreparedStatement *preparedStatement =
-                cm->conn->prepareStatement("INSERT INTO " + planned_route_table + " (x, y, pace_id) " +
-                                           "VALUES (?, ?, ?)");
+                cm->conn->prepareStatement("INSERT INTO " + planned_route_table + " (x, y) " +
+                                           "VALUES (?, ?)");
         for (int i = 0; i < cm->plannedRoute.size(); i++) {
             auto &pace = cm->plannedRoute[i];
             preparedStatement->setDouble(1, pace.first);
             preparedStatement->setDouble(2, pace.second);
-            preparedStatement->setInt(3, i);
             preparedStatement->execute();
         }
         delete preparedStatement;
