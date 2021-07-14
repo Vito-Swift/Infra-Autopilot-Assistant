@@ -9,10 +9,10 @@
 #include "LPHost/LamppostHostRBDetection.hh"
 
 typedef struct {
-    float y_diff_in_xm;
-    float y_diff_in_ym;
-    float x_diff_in_xm;
-    float x_diff_in_ym;
+    float latitude_diff_in_xm;
+    float latitude_diff_in_ym;
+    float longitude_diff_in_xm;
+    float longitude_diff_in_ym;
 } geometrics_t;
 
 cv::Point3f mean3f(const std::vector<cv::Point3f> &points) {
@@ -30,10 +30,10 @@ geometrics_t getMetricsFromXML(const std::string &ref_file) {
 
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt.get_child("RefPoints")) {
                     if (v.first == "Metric") {
-                        ret.x_diff_in_xm = v.second.get<float>("x_diff_in_xm", 1.0);
-                        ret.x_diff_in_ym = v.second.get<float>("x_diff_in_ym", 0.0);
-                        ret.y_diff_in_xm = v.second.get<float>("y_diff_in_xm", 0.0);
-                        ret.y_diff_in_ym = v.second.get<float>("y_diff_in_ym", 1.0);
+                        ret.longitude_diff_in_xm = v.second.get<float>("longitude_diff_in_xm", 1.0);
+                        ret.longitude_diff_in_ym = v.second.get<float>("longitude_diff_in_ym", 0.0);
+                        ret.latitude_diff_in_xm = v.second.get<float>("latitude_diff_in_xm", 0.0);
+                        ret.latitude_diff_in_ym = v.second.get<float>("latitude_diff_in_ym", 1.0);
                     }
                 }
     return ret;
@@ -67,13 +67,11 @@ RBCoordinate getRefCoordinateFromXML(int ref_id, const std::string &ref_file) {
 
 // estimate the gps coordinate of detected road block with respect to the reference aruco marker
 RBCoordinate estimateRBCoordinate(const RBCoordinate &refCoordinate,
-                                  const geometrics_t geometrics,
                                   const float delta_x,
                                   const float delta_y,
                                   const float delta_z) {
-    return {
-            refCoordinate.x + delta_x * geometrics.x_diff_in_xm + delta_z * geometrics.x_diff_in_ym,
-            refCoordinate.y + delta_x * geometrics.y_diff_in_xm + delta_z * geometrics.y_diff_in_ym};
+    return {refCoordinate.x + delta_x,
+            refCoordinate.y + delta_z};
 }
 
 void *RBDetectionThread(void *vargp) {
@@ -145,7 +143,7 @@ void *RBDetectionThread(void *vargp) {
                                 detected_marker_num);
             for (int i : detectedArucoMarkerIDList) {
                 cv::Point3f mean = mean3f(arucoMarkerMapper->getMarkerMap().getMarker3DInfo(i).points);
-                RBCoordinate coordinate = estimateRBCoordinate(ref_gps, metrics, mean.x, mean.y, mean.z);
+                RBCoordinate coordinate = estimateRBCoordinate(ref_gps, mean.x, mean.y, mean.z);
                 coordinate.marker_id = i;
                 PRINTF_THREAD_STAMP("%s \t Aruco index: %d \t At: (%lf, %lf, %lf)\t estimate gps: (%lf, %lf)\n",
                                     args->cam_addr.c_str(), coordinate.marker_id,

@@ -62,25 +62,43 @@ int main(int argc, char **argv) {
                 return 0;
 
             } else if (command == "demo") {
-                // start demo
+                // reading parameters and configuration file
                 if (vm["destx"].empty() || vm["desty"].empty()) {
                     cerr << "error: must provide destx and desty when demo mode" << std::endl;
                     return 1;
                 }
-
                 std::string config_file = vm["config"].as<std::string>();
                 if (config_file.empty()) {
                     cerr << "error: must provide config file *.init by option --config to start the program"
                          << endl;
                     return 1;
                 }
-
                 double dest_x = vm["destx"].as<double>();
                 double dest_y = vm["desty"].as<double>();
+                boost::property_tree::ptree pt;
+                boost::property_tree::ini_parser::read_ini(config_file, pt);
+                sql::Driver *driver = get_driver_instance();
+                sql::Connection *con = driver->connect(GetPropertyTree<std::string>(pt, "Database.Host", true, nullptr),
+                                                       GetPropertyTree<std::string>(pt, "Database.User", true, nullptr),
+                                                       GetPropertyTree<std::string>(pt, "Database.Password", true,
+                                                                                    nullptr));
 
+                // initializing control manager instance
                 Control::ControlManager_t cm;
                 cm.dest_point = std::pair<double, double>(dest_x, dest_y);
+                cm.mapinfo.width = GetPropertyTree<double>(pt, "Arena.Width", true, nullptr);
+                cm.mapinfo.height = GetPropertyTree<double>(pt, "Arena.Height", true, nullptr);
+                cm.mapinfo.grid_size = GetPropertyTree<double>(pt, "Arena.GridSize", true, nullptr);
+                cm.mapinfo.lt_point = {0, 0};
+                cm.conn = con;
+                cm.db = GetPropertyTree<std::string>(pt, "Database.Database", true, nullptr);
 
+                // run
+                Control::generate_roadblock_map(&cm);
+                Control::generate_path(&cm);
+                Control::start_robomaster(&cm);
+
+                delete con;
             } else if (command == "stat") {
                 // show statistic message
 
