@@ -100,9 +100,12 @@ add_executable(lmphostctl
         include/Control/CtrlPathSearch.hh
         include/Control/CtrlGeneral.hh
         include/utils.hh)
-target_link_libraries(lmphostctl ${Boost_LIBRARIES})
+target_link_libraries(lmphostctl
+        ${Boost_LIBRARIES}
+        mysqlcppconn)
 target_include_directories(lmphostctl
-        PRIVATE include)
+        PRIVATE include
+        PRIVATE "/usr/include")
 
 ################################################################
 # Exec: Build Lamppost Hook Program

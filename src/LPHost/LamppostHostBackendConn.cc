@@ -38,14 +38,6 @@ void initialize_database(LamppostHostProg *prog) {
                        "`last_seen` DATETIME NOT NULL, "
                        "PRIMARY KEY (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
-    PRINTF_THREAD_STAMP("initialize Route table\n");
-    statement->execute("DROP TABLE IF EXISTS " + planned_route_table);
-    statement->execute("CREATE TABLE IF NOT EXISTS `" + planned_route_table +
-                       "` (`x` DOUBLE NOT NULL, "
-                       "`y` DOUBLE NOT NULL, "
-                       "`pace_id` INT UNSIGNED AUTO_INCREMENT, "
-                       "PRIMARY KEY (`pace_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-
     PRINTF_THREAD_STAMP("initialize Lamppost table\n");
     statement->execute("DROP TABLE IF EXISTS " + alive_lamppost_table);
     statement->execute("CREATE TABLE IF NOT EXISTS `" + alive_lamppost_table +
@@ -121,7 +113,7 @@ void *LamppostHostBackendThread(void *vargs) {
                                        " WHERE addr='" + bats_addr_to_str(prog->LamppostAliveList[i].first) + "';");
                 } else {
                     // lamppost is still alive, update data in the SQL database
-                    statement->execute("REPLACE INTO " + alive_lamppost_table + "(addr, last_seen) VALUES" +
+                    statement->execute("REPLACE INTO " + alive_lamppost_table + " (addr, last_seen) VALUES" +
                                        " (\"" + bats_addr_to_str(prog->LamppostAliveList[i].first) + "\", NOW());");
                 }
             }

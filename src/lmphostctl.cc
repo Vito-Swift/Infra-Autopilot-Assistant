@@ -7,7 +7,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
-#include "Control/CtrlPathSearch.hh"
+#include "Control/CtrlGeneral.hh"
 #include "utils.hh"
 
 using std::cout;
@@ -22,10 +22,11 @@ int main(int argc, char **argv) {
     config_option->default_value("");
     desc.add_options()
             ("help,h", "show this message")
-            ("service,c", boost::program_options::value<std::string>()->value_name("COMMAND"), "[start|stop|stat|log]")
+            ("service,s", boost::program_options::value<std::string>()->value_name("COMMAND"), "[start|stop|stat|log]")
             ("config,c", config_option, "must specify if -service start is invoked")
             ("destx,x", boost::program_options::value<double>()->value_name("X"), "x coordinates of destination")
-            ("desty,y", boost::program_options::value<double>()->value_name("Y"), "y coordinates of destination");
+            ("desty,y", boost::program_options::value<double>()->value_name("Y"), "y coordinates of destination")
+            ("gpsref,g", boost::program_options::value<std::string>()->value_name("gpsref.xml"), "GPS reference file");
 
     try {
         boost::program_options::variables_map vm;
@@ -67,9 +68,18 @@ int main(int argc, char **argv) {
                     return 1;
                 }
 
+                std::string config_file = vm["config"].as<std::string>();
+                if (config_file.empty()) {
+                    cerr << "error: must provide config file *.init by option --config to start the program"
+                         << endl;
+                    return 1;
+                }
+
                 double dest_x = vm["destx"].as<double>();
                 double dest_y = vm["desty"].as<double>();
 
+                Control::ControlManager_t cm;
+                cm.dest_point = std::pair<double, double>(dest_x, dest_y);
 
             } else if (command == "stat") {
                 // show statistic message

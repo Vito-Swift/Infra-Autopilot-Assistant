@@ -29,6 +29,7 @@
 #include <assert.h>
 #include <string>
 #include <regex>
+#include <math.h>
 #include <fcntl.h>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
@@ -422,6 +423,16 @@ inline std::string bats_addr_to_str(int16_t addr) {
            std::to_string((addr >> 16) & 0xFF) + "." +
            std::to_string((addr >> 8) & 0xFF) + "." +
            std::to_string(addr & 0xFF);
+}
+
+inline double calculateDistance(const RBCoordinate &c1, const RBCoordinate &c2) {
+    double d = pow(c1.x - c2.x, 2) + pow(c1.y - c2.y, 2);
+    return sqrt(d);
+}
+
+inline double calculateDistance(const std::pair<double, double> &c1, const std::pair<double, double> &c2) {
+    double d = pow(c1.first - c2.first, 2) + pow(c1.second - c2.second, 2);
+    return sqrt(d);
 }
 
 #endif //LAMPPOSTAUTOCARDEMO_UTILS_HH
