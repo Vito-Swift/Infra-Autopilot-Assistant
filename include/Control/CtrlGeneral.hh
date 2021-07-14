@@ -51,6 +51,8 @@ namespace Control {
 
     bool generate_path(ControlManager_t *cm);
 
+    void store_path_to_server(ControlManager_t *cm);
+
     void start_robomaster(ControlManager_t *cm);
 }
 

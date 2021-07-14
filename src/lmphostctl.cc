@@ -96,6 +96,7 @@ int main(int argc, char **argv) {
                 // run
                 Control::generate_roadblock_map(&cm);
                 Control::generate_path(&cm);
+                Control::store_path_to_server(&cm);
                 Control::start_robomaster(&cm);
 
                 delete con;
