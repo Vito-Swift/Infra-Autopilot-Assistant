@@ -195,23 +195,243 @@ the ID of the ArUco marker used for reference (one per video stream), the size o
 Valid subdomains include:
 
 - **Camera\[1,2\]**: address of the video stream
-- **
+- **Cam\[1,2\]RefMarker**: ID of the ArUco marker used for reference
+- **MarkerSize**: actual size of the ArUco board (unit: meter)
+- **FrameIncrement**: frame count between two single ArUco detections, default to be 100 (frames).
+- **CalibrationFile**: file to store the camera calibration result (camera matrix and distortion matrix). Detailed
+  description sees [section: Camera calibration file](#camera-calibration-file)
+- **GPSReferenceFile**: file to store the GPS of reference markers, GPS of origin point and the geographical metrics.
+  Detailed description sees [section: GPS calibration file](#gps-reference-file)
 
-This section describes the configuration of the
+#### \[Database\] section:
 
-### GPS calibration file
+***Note: this section must be filled correctly when launch in root node.***
+
+This section describes how the root program connects the MySQL database to store the analytical data.
+
+The subdomain of this section include:
+
+- **Host**: host address of the MySQL database
+- **User**: user of the MySQL database
+- **Password**: credential of the database
+- **Database**: schema of the database
+
+### \[Arena\] section:
+
+***Note: this section must be filled correctly when launch in root node.***
+
+This section describes the geographical settings of the demo, i.e. what is the width and the height of the demo arena,
+and what is the actual size of each grid in employing AStar path finding algorithm.
+
+### GPS reference file
+
+The GPS reference file is a xml file that stores the basic information of the GPS of reference markers, GPS of origin
+point and the geographical metrics. A sample file is provided in `<proj_root>/_config/gpsref.xml`.
+
+```xml
+<?xml version="1.0"?>
+<RefPoints>
+    <RefPoint>
+        <aruco_id>10</aruco_id>
+        <x>1.0</x>
+        <y>0.0</y>
+    </RefPoint>
+    <Origin>
+        <longitude>22.0</longitude>
+        <latitude>114.0</latitude>
+    </Origin>
+    <Metric>
+        <longitude_diff_in_xm>1.0</longitude_diff_in_xm>
+        <longitude_diff_in_ym>0.0</longitude_diff_in_ym>
+        <latitude_diff_in_xm>0.0</latitude_diff_in_xm>
+        <latitude_diff_in_ym>1.0</latitude_diff_in_ym>
+    </Metric>
+</RefPoints>
+```
 
 ### Camera calibration file
+
+According to the pin-hole camera model, the first step of reconstructing 2D camera coordinates into the 3D world
+coordinates is camera calibration. The camera calibration process produces 2 matrix, camera matrix and distortion
+matrix and stores them into an xml file. 
+
+A sample calibration file is stored in `<proj_root>/webcam_640x480.xml`
+
+```xml
+<?xml version="1.0"?>
+<opencv_storage>
+<calibration_time>"Wed Jun 30 04:05:17 2021"</calibration_time>
+<nr_of_frames>15</nr_of_frames>
+<image_width>640</image_width>
+<image_height>480</image_height>
+<board_width>12</board_width>
+<board_height>8</board_height>
+<square_size>70.</square_size>
+<fix_aspect_ratio>1.</fix_aspect_ratio>
+<flags>6158</flags>
+<fisheye_model>0</fisheye_model>
+<camera_matrix type_id="opencv-matrix">
+  <rows>3</rows>
+  <cols>3</cols>
+  <dt>d</dt>
+  <data>
+    5.3368467133099159e+02 0. 320. 0. 5.3368467133099159e+02 240. 0. 0.
+    1.</data></camera_matrix>
+<distortion_coefficients type_id="opencv-matrix">
+  <rows>5</rows>
+  <cols>1</cols>
+  <dt>d</dt>
+  <data>
+    1.0183631577296211e-01 -6.7735104715374406e-01 0. 0.
+    8.4581480933649966e-01</data></distortion_coefficients>
+<avg_reprojection_error>1.0449172724416682e+00</avg_reprojection_error>
+</opencv_storage>
+```
 
 ---
 
 # Backend
 
+Simple version for now.
+
 ## Lamppost Alive Status Table
+
+```shell
+mysql> select * from Lamppost;
++---------+---------------------+
+| addr    | last_seen           |
++---------+---------------------+
+| 0.0.1.0 | 2021-07-14 19:07:25 |
+| 0.0.1.1 | 2021-07-14 19:07:25 |
+| 0.0.1.2 | 2021-07-14 19:07:25 |
+| 0.0.1.3 | 2021-07-14 19:07:25 |
++---------+---------------------+
+4 rows in set (0.01 sec)
+```
 
 ## Detected Roadblocks Table
 
+```shell
+mysql> select * from RoadBlocks;
++---+---+--------+---------------------+
+| x | y | ref_id | last_seen           |
++---+---+--------+---------------------+
+| 0 | 0 |      0 | 2021-07-14 19:07:25 |
++---+---+--------+---------------------+
+1 row in set (0.01 sec)
+```
+
 ## Route Table
+
+```shell
+mysql> select * from Route;
++--------------------+---------------------+---------+
+| x                  | y                   | pace_id |
++--------------------+---------------------+---------+
+|                  5 |                   0 |       1 |
+|   5.09997787475586 |                 0.1 |       2 |
+|  5.199973297119142 |                 0.2 |       3 |
+|  5.299928808212281 | 0.30000000000000004 |       4 |
+|  5.399786925315857 |                 0.4 |       5 |
+|  5.499417626857758 |                 0.5 |       6 |
+|  5.598462373018265 |  0.6000000000000001 |       7 |
+|  5.695969235897065 |  0.7000000000000001 |       8 |
+|  5.789444467425347 |                 0.8 |       9 |
+|  5.872362338006497 |                 0.9 |      10 |
+|  5.927634514123202 |                   1 |      11 |
+|  6.010582527704537 |                 1.1 |      12 |
+|  6.103994816914202 |  1.2000000000000002 |      13 |
+| 6.2015511612873535 |  1.3000000000000003 |      14 |
+|  6.300594513816759 |  1.4000000000000001 |      15 |
+|  6.400206445832738 |                 1.5 |      16 |
+| 6.5000007943250235 |                 1.6 |      17 |
+|  6.599924094532616 |  1.7000000000000002 |      18 |
+|  6.699664982734248 |  1.8000000000000003 |      19 |
+|  6.799011076281749 |  1.9000000000000001 |      20 |
+|   6.89754554664869 |                   2 |      21 |
+|  6.993542269321006 |                 2.1 |      22 |
+|  7.083039906195973 |                 2.2 |      23 |
+|  7.155554457306062 |  2.3000000000000003 |      24 |
+|  7.183764724418825 |  2.4000000000000004 |      25 |
+|  7.195594770499634 |                 2.5 |      26 |
+|  7.203077554234335 |                 2.6 |      27 |
+|  7.213657920672441 |                 2.7 |      28 |
+|  7.237918200142108 |  2.8000000000000003 |      29 |
+| 7.2999691970773934 |  2.9000000000000004 |      30 |
+|  7.362097268976564 |                   3 |      31 |
+|  7.386377219475239 |                 3.1 |      32 |
+|  7.396906214625877 |                 3.2 |      33 |
+|  7.404264395516076 |  3.3000000000000003 |      34 |
+|     7.416201229047 |  3.4000000000000004 |      35 |
+|  7.444099643600075 |                 3.5 |      36 |
+|  7.516154709673283 |                 3.6 |      37 |
+|  7.604244287061766 |                 3.7 |      38 |
+|  7.696898238802094 |  3.8000000000000003 |      39 |
+|  7.786059975265647 |  3.9000000000000004 |      40 |
+|   7.86161887280633 |                   4 |      41 |
+|  7.898523776011013 |                 4.1 |      42 |
+|   7.93408566007135 |   4.199999999999999 |      43 |
+|  8.003864531454607 |                 4.3 |      44 |
+|  8.077199955729665 |                 4.4 |      45 |
+|  8.127952636835886 |                 4.5 |      46 |
+|  8.206639356736066 |                 4.6 |      47 |
+|  8.291918900612187 |                 4.7 |      48 |
+|  8.369116762683635 |   4.800000000000001 |      49 |
+|  8.415444862282662 |                 4.9 |      50 |
+|  8.477223459776702 |                   5 |      51 |
+|  8.516223832237339 |                 5.1 |      52 |
+|  8.571445018986065 |                 5.2 |      53 |
+|  8.598109803727418 |   5.300000000000001 |      54 |
+|  8.622890590650314 |                 5.4 |      55 |
+|  8.670519872537916 |                 5.5 |      56 |
+|  8.688780907745606 |                 5.6 |      57 |
+|  8.695716218394931 |                 5.7 |      58 |
+|    8.6983143038047 |   5.800000000000001 |      59 |
+|  8.699414264830175 |                 5.9 |      60 |
+|  8.699796790073488 |                   6 |      61 |
+|  8.700087447684652 |                 6.1 |      62 |
+|  8.700216874477004 |                 6.2 |      63 |
+|  8.700799937608593 |   6.300000000000001 |      64 |
+|  8.702155501208999 |                 6.4 |      65 |
+|  8.705610002313737 |                 6.5 |      66 |
+|  8.714676891001925 |                 6.6 |      67 |
+|  8.738386418003014 |                 6.7 |      68 |
+|  8.800656096337084 |   6.800000000000001 |      69 |
+|  8.863265302879295 |                 6.9 |      70 |
+|  8.889516918114222 |                   7 |      71 |
+|  8.904935951841665 |                 7.1 |      72 |
+|  8.925620028486904 |                 7.2 |      73 |
+|  8.971578644825609 |   7.300000000000001 |      74 |
+|  8.989462018052222 |                 7.4 |      75 |
+|  8.996468278595897 |                 7.5 |      76 |
+|  9.000280269474235 |                 7.6 |      77 |
+|  9.004084293858183 |                 7.7 |      78 |
+|  9.012099073416548 |   7.800000000000001 |      79 |
+|  9.032351987150259 |                 7.9 |      80 |
+|  9.084603511880424 |                   8 |      81 |
+|  9.121843970468632 |   8.100000000000001 |      82 |
+|  9.180594019342294 |   8.200000000000001 |      83 |
+|  9.220270868372598 |                 8.3 |      84 |
+|  9.279869536749514 |                 8.4 |      85 |
+|  9.319680170983641 |                 8.5 |      86 |
+|   9.37883061151377 |   8.600000000000001 |      87 |
+|  9.417151664267923 |   8.700000000000001 |      88 |
+|  9.472316063357978 |                 8.8 |      89 |
+|  9.500015813189583 |                 8.9 |      90 |
+|  9.527644411505221 |                   9 |      91 |
+|  9.582910682023703 |   9.100000000000001 |      92 |
+|  9.621103326598153 |   9.200000000000001 |      93 |
+|  9.680402435792718 |                 9.3 |      94 |
+|  9.720101267245521 |                 9.4 |      95 |
+|  9.779899733619324 |                 9.5 |      96 |
+|  9.819597913481005 |   9.600000000000001 |      97 |
+|  9.878894376349734 |   9.700000000000001 |      98 |
+|  9.917085393250371 |                 9.8 |      99 |
+|  9.972361808107662 |                 9.9 |     100 |
+|                 10 |                  10 |     101 |
++--------------------+---------------------+---------+
+101 rows in set (0.00 sec)
+```
 
 # Contribute
 
