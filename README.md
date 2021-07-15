@@ -14,8 +14,6 @@ Lamppost Autonomous Car Assistant
     - [4. Grafana Frontend (ongoing)](#)
 - [Developer Guide](#contribute)
 
------------------------------------
-
 # Introduction
 
 This project is a demo system using BATS Transmission Protocol (BTP) to provide fast data transmission in an
