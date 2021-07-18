@@ -116,9 +116,62 @@ Example:
 
 ## Configure RoboMaster and RaspberryPI
 
+Please secure the wiring of the raspberry pi before starting the system
+ - connect to power via an USB type-c cable. 
+ - connect the GPS receiver with USB
+ - connect to the RoboMaster ep1 controller with USB (to robomaster ep1's micro USB interface)
+
+When both the robomaster and raspberry pi are powered up, raspberry pi will become an AP with following spec:
+
+```text
+SSID: ep1-pi
+PASSWD: netcod99
 ```
-to be add on by Morris
+
+**PLEASE only connect to this AP (and ignore the AP hosted by robomaster, because the control of robomaster are already proxied through the raspberry pi)**
+
+The Raspberry pi has static ip 192.168.57.1, if you can connect to the AP, you will obtain an 192.168.57.0/24 ip. 
+
+**If you have multiple network adapter, PLEASE NOT let 192.168.57.1 to be your default route, instead, add a custom route to 192.168.42.0/24 via 192.168.57.1
+** This is for control the robomaster ep1.
+
+The raspberry pi will provides the following service:
+
 ```
+SSH @ port 22 
+	username: pi
+	password: raspberry
+EXAMPLE:
+	ssh pi@192.168.57.1
+	
+	
+GPS NMEA message @ port 6001
+	please use an NMEA parser to read the message
+EXAMPLE:
+	// the following command will print the raw message of GPS NMEA data
+	telnet 192.168.57.1 6001
+	
+	
+Robomaster at RNDIS mode @ 192.168.42.2
+	please read the robomaster SDK document, and make sure you has setup route to 192.168.42.0/24 via 192.168.57.1
+	you may test the reachibility of robomaster:
+	ping 192.168.42.2
+	PLEASE also make sure add the following line before using python SDK
+	robot.config.LOCAL_IP_STR = "192.168.57.XXX"
+	where "192.168.57.XXX" need to be replace by your ip.
+```
+
+Currently the following utility are useful:
+
+```text
+You may run the following on a device connected to raspberry pi's wifi
+
+ep.py	may connect the robomaster ep, and make it follows a certain path
+parseXML.py	read the xml GPS file and initialize the coordinate transform
+db_service.py	read the path info from the mysql server
+gps_read.py	read and print the GPS infomation
+```
+
 
 ## Use lmphostctl to manage the system
 
