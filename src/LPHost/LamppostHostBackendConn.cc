@@ -36,14 +36,16 @@ void initialize_database(LamppostHostProg *prog) {
                        "`y` DOUBLE NOT NULL, "
                        "`ref_id` INT UNSIGNED NOT NULL, "
                        "`last_seen` DATETIME NOT NULL, "
-                       "PRIMARY KEY (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+                       "`row_id` INT Auto Increment, "
+                       "PRIMARY KEY (`row_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
     PRINTF_THREAD_STAMP("initialize Lamppost table\n");
     statement->execute("DROP TABLE IF EXISTS " + alive_lamppost_table);
     statement->execute("CREATE TABLE IF NOT EXISTS `" + alive_lamppost_table +
                        "` (`addr` VARCHAR(100) NOT NULL,"
                        "`last_seen` DATETIME NOT NULL,"
-                       "PRIMARY KEY (`addr`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+                       "`row_id` INT Auto Increment, "
+                       "PRIMARY KEY (`row_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
     conn->close();
     delete statement;
@@ -85,14 +87,19 @@ void *LamppostHostBackendThread(void *vargs) {
                             prog->CollectedRBCoordinates[i].first.marker_id, RB_ALIVE_INTERVAL);
                     prog->CollectedRBCoordinates.erase(prog->CollectedRBCoordinates.begin() + i);
                     // erase in the SQL database
-                    statement->execute("DELETE FROM " + detected_road_blocks_table +
-                                       " WHERE ref_id=" +
-                                       std::to_string(prog->CollectedRBCoordinates[i].first.marker_id));
+//                    statement->execute("DELETE FROM " + detected_road_blocks_table +
+//                                       " WHERE ref_id=" +
+//                                       std::to_string(prog->CollectedRBCoordinates[i].first.marker_id));
                 } else {
                     // road block is still in the screen, update data in the SQL database
-                    statement->execute("REPLACE INTO " + detected_road_blocks_table +
+                    statement->execute("INSERT INTO " + detected_road_blocks_table +
                                        " (x, y, ref_id, last_seen) " +
                                        "VALUES (" + x_str + ", " + y_str + ", " + ref_str + ", NOW());");
+                    // delete record order than 1000 records;
+                    statement->execute("DELETE FROM " + detected_road_blocks_table +
+                                       " WHERE row_id < (SELECT row_id FROM "
+                                       "(SELECT * FROM " + detected_road_blocks_table +
+                                       "ORDER BY last_seen DESC LIMIT 1000,1) AS drb)");
                 }
             }
             lock.unlock();
@@ -109,12 +116,16 @@ void *LamppostHostBackendThread(void *vargs) {
                                         BACKBONE_ALIVE_INTERVAL);
                     prog->LamppostAliveList.erase(prog->LamppostAliveList.begin() + i);
                     // erase int the SQL database
-                    statement->execute("DELETE FROM " + alive_lamppost_table +
-                                       " WHERE addr='" + bats_addr_to_str(prog->LamppostAliveList[i].first) + "';");
+                    //statement->execute("DELETE FROM " + alive_lamppost_table +
+                    //" WHERE addr='" + bats_addr_to_str(prog->LamppostAliveList[i].first) + "';");
                 } else {
                     // lamppost is still alive, update data in the SQL database
-                    statement->execute("REPLACE INTO " + alive_lamppost_table + " (addr, last_seen) VALUES" +
+                    statement->execute("INSERT INTO " + alive_lamppost_table + " (addr, last_seen) VALUES" +
                                        " (\"" + bats_addr_to_str(prog->LamppostAliveList[i].first) + "\", NOW());");
+                    statement->execute("DELETE FROM " + alive_lamppost_table +
+                                       " WHERE row_id < (SELECT row_id FROM "
+                                       "(SELECT * FROM " + alive_lamppost_table +
+                                       "ORDER BY last_seen DESC LIMIT 1000,1) AS drb)");
                 }
             }
             if (!prog->LamppostAliveList.empty()) {
