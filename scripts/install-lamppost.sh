@@ -5,7 +5,7 @@ script_path="$(dirname "$0")"
 
 # Build OpenCV
 cd ~ && mkdir OPENCV_BUILD && cd OPENCV_BUILD
-sudo apt update && sudo apt install -y \
+sudo apt update && sudo apt upgrade -y && sudo apt install -y \
         build-essential \
         cmake \
         git \
