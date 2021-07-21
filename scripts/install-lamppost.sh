@@ -4,6 +4,7 @@ pwd=`pwd`
 script_path="$(dirname "$0")"
 
 # Build OpenCV
+sudo cp /usr/lib/python3/dist-packages/lsb_release.py /usr/local/lib/python3.6/
 cd ~ && mkdir OPENCV_BUILD && cd OPENCV_BUILD
 sudo apt update && sudo apt upgrade -y && sudo apt install -y \
         build-essential \
