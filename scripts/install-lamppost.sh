@@ -26,7 +26,7 @@ sudo apt update && sudo apt upgrade -y && sudo apt install -y \
         pkg-config
 sudo apt install -y python3
 sudo apt install -y python3-pip
-sudo pip3 -i https://pypi.tuna.tsinghua.edu.cn/simple install numpy
+sudo pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple numpy
 export OPENCV_VERSION="4.1.0"
 wget https://github.com/opencv/opencv_contrib/archive/${OPENCV_VERSION}.zip \
         && unzip ${OPENCV_VERSION}.zip \
