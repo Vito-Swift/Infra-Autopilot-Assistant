@@ -36,7 +36,7 @@ void initialize_database(LamppostHostProg *prog) {
                        "`y` DOUBLE NOT NULL, "
                        "`ref_id` INT UNSIGNED NOT NULL, "
                        "`last_seen` DATETIME NOT NULL, "
-                       "`row_id` INT Auto Increment, "
+                       "`row_id` INT Auto_Increment, "
                        "PRIMARY KEY (`row_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
     PRINTF_THREAD_STAMP("initialize Lamppost table\n");
@@ -44,7 +44,7 @@ void initialize_database(LamppostHostProg *prog) {
     statement->execute("CREATE TABLE IF NOT EXISTS `" + alive_lamppost_table +
                        "` (`addr` VARCHAR(100) NOT NULL,"
                        "`last_seen` DATETIME NOT NULL,"
-                       "`row_id` INT Auto Increment, "
+                       "`row_id` INT Auto_Increment, "
                        "PRIMARY KEY (`row_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
 
     conn->close();
@@ -62,7 +62,7 @@ void *LamppostHostBackendThread(void *vargs) {
     sql::Connection *conn;
     sql::Statement *statement;
 
-    PRINTF_THREAD_STAMP("Initializing database...\n");
+    PRINTF_THREAD_STAMP("initializing database...\n");
     initialize_database(prog);
     driver = get_driver_instance();
     conn = driver->connect(prog->options.DB_HOST, prog->options.DB_USER, prog->options.DB_PASSWD);
@@ -97,9 +97,9 @@ void *LamppostHostBackendThread(void *vargs) {
                                        "VALUES (" + x_str + ", " + y_str + ", " + ref_str + ", NOW());");
                     // delete record order than 1000 records;
                     statement->execute("DELETE FROM " + detected_road_blocks_table +
-                                       " WHERE row_id < (SELECT row_id FROM "
-                                       "(SELECT * FROM " + detected_road_blocks_table +
-                                       "ORDER BY last_seen DESC LIMIT 1000,1) AS drb)");
+                                       " WHERE row_id NOT IN (" +
+                                       "SELECT row_id FROM ( SELECT row_id FROM " + detected_road_blocks_table +
+                                       " ORDER BY row_id DESC LIMIT 1000) x )");
                 }
             }
             lock.unlock();
@@ -123,9 +123,9 @@ void *LamppostHostBackendThread(void *vargs) {
                     statement->execute("INSERT INTO " + alive_lamppost_table + " (addr, last_seen) VALUES" +
                                        " (\"" + bats_addr_to_str(prog->LamppostAliveList[i].first) + "\", NOW());");
                     statement->execute("DELETE FROM " + alive_lamppost_table +
-                                       " WHERE row_id < (SELECT row_id FROM "
-                                       "(SELECT * FROM " + alive_lamppost_table +
-                                       "ORDER BY last_seen DESC LIMIT 1000,1) AS drb)");
+                                       " WHERE row_id NOT IN (" +
+                                       "SELECT row_id FROM ( SELECT row_id FROM " + alive_lamppost_table +
+                                       " ORDER BY row_id DESC LIMIT 1000) x )");
                 }
             }
             if (!prog->LamppostAliveList.empty()) {

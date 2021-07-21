@@ -30,20 +30,34 @@ namespace Control {
             for (int j = 0; j < cm->map_col_count; j++)
                 cm->map[i][j] = 1;
 
+        // todo: filter out outdated roadblocks
         // connect to sql database and get the coordinates of detected roadblocks
         cm->conn->setSchema(cm->db);
         sql::ResultSet *resultSet;
-        sql::PreparedStatement *pstmt = cm->conn->prepareStatement("SELECT x,y FROM " + detected_road_blocks_table);
+        sql::PreparedStatement *pstmt = cm->conn->prepareStatement(
+                "SELECT x,y,last_seen FROM " + detected_road_blocks_table + " INNER JOIN " +
+                "(SELECT MAX(row_id) as row_id FROM " + detected_road_blocks_table + " GROUP BY ref_id) last_updates" +
+                " ON last_updates.row_id = " + detected_road_blocks_table + ".row_id");
         resultSet = pstmt->executeQuery();
         while (resultSet->next()) {
             auto x = resultSet->getDouble("x");
             auto y = resultSet->getDouble("y");
-            cm->roadblocks.emplace_back(std::pair<double, double>(x, y));
+            auto last_seen = std::istringstream(resultSet->getString("last_seen"));
+            std::tm t{};
+            last_seen >> std::get_time(&t, "%Y-%m-%d %H:%M:%S");
+            if (last_seen.fail()) {
+                throw std::runtime_error{"failed to parse time string"};
+            }
+            time_t row_time = mktime(&t);
+            double diff_time = difftime(time(0), row_time);
+            if (diff_time <= RB_ALIVE_INTERVAL)
+                cm->roadblocks.emplace_back(std::pair<double, double>(x, y));
         }
         delete pstmt;
 
         // fill in the map where the roadblock are placed in
         for (auto &roadblock: cm->roadblocks) {
+            cout << "roadblock at: " << roadblock.first << ", " << roadblock.second << endl;
             // iterate over all grids and check whether the grid is within the
             // region of the roadblock
             for (int i = 0; i < cm->map_row_count; i++)
