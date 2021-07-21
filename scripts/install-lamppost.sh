@@ -5,7 +5,7 @@ script_path="$(dirname "$0")"
 
 # Build OpenCV
 sudo cp /usr/lib/python3/dist-packages/lsb_release.py /usr/local/lib/python3.6/
-pip install pip -U
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple pip -U
 pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 cd ~ && mkdir OPENCV_BUILD && cd OPENCV_BUILD
