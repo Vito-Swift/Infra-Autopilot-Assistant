@@ -5,9 +5,6 @@ script_path="$(dirname "$0")"
 
 # Build OpenCV
 sudo cp /usr/lib/python3/dist-packages/lsb_release.py /usr/local/lib/python3.6/
-pip install -i https://pypi.tuna.tsinghua.edu.cn/simple pip -U
-pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 cd ~ && mkdir OPENCV_BUILD && cd OPENCV_BUILD
 sudo apt update && sudo apt upgrade -y && sudo apt install -y \
         build-essential \
@@ -29,7 +26,7 @@ sudo apt update && sudo apt upgrade -y && sudo apt install -y \
         pkg-config
 sudo apt install -y python3
 sudo apt install -y python3-pip
-sudo pip3 install numpy
+sudo pip3 -i https://pypi.tuna.tsinghua.edu.cn/simple install numpy
 export OPENCV_VERSION="4.1.0"
 wget https://github.com/opencv/opencv_contrib/archive/${OPENCV_VERSION}.zip \
         && unzip ${OPENCV_VERSION}.zip \
