@@ -35,9 +35,7 @@ function build() {
           && unzip ${OPENCV_VERSION}.zip \
           && mkdir opencv-${OPENCV_VERSION}/cmake_binary \
           && cd opencv-${OPENCV_VERSION}/cmake_binary \
-          && cmake -DBUILD_TIFF=ON \
-            -DBUILD_opencv_java=OFF \
-            -DOPENCV_EXTRA_MODULES_PATH=~/OPENCV_BUILD/opencv_contrib-${OPENCV_VERSION}/modules \
+          && cmake -DBUILD_TIFF=ON -DBUILD_opencv_java=OFF -DOPENCV_EXTRA_MODULES_PATH=~/OPENCV_BUILD/opencv_contrib-4.1.0/modules \
             -DWITH_CUDA=OFF \
             -DWITH_OPENGL=ON \
             -DWITH_OPENCL=ON \
