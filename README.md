@@ -7,6 +7,7 @@ Lamppost Autonomous Car Assistant
     - [1. Launch Lamppost Host Program](#launch-lamppost-host-program)
     - [2. Use lmphostctl to manage the system](#use-lmphostctl-to-manage-the-system)
     - [3. Editing configuration files](#editing-configuration-files)
+    - [4. Start DEMO A-Z](https://github.com/Vito-Swift/Infra-Autopilot-Assistant/wiki/Run-Demo-A-Z)
 - [Backend](#backend)
     - [1. Lamppost Alive Status Table](#lamppost-alive-status-table)
     - [2. Detected Roadblocks Table](#detected-roadblocks-table)
