@@ -139,7 +139,7 @@ RUN cd batspro2 && echo $'install (TARGETS btp ipc DESTINATION lib)\n\
                                         Socket/include/BPSocket.h \
                                         Socket/include/IPC_UDS.h \
                                         DESTINATION include)' | tee -a /bats-protocol-workdir/batspro2/BTP/CMakeLists.txt
-RUN sed -i 's/LOG_MSQ_MAX_MSGS\s16/LOG_MSQ_MAX_MSGS 10/g' batspro2/Utilities/BATSLogger/src/BATSLogger.h
+RUN sed -i 's/LOG_MSQ_MAX_MSGS\s16/LOG_MSQ_MAX_MSGS 10/g' batspro2/Utilities/BATSLogger/include/BATSLogger.h
 RUN cd batspro2 && mkdir build && cd build && cmake .. && make -j4 && make install
 
 #############################################
