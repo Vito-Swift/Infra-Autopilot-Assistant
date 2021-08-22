@@ -24,6 +24,8 @@ int main(int argc, char **argv) {
             ("help,h", "show this message")
             ("service,s", boost::program_options::value<std::string>()->value_name("COMMAND"), "[start|stop|stat|log]")
             ("config,c", config_option, "must specify if -service start is invoked")
+            ("srcx", boost::program_options::value<double>()->value_name("src X"), "x coordinates of source")
+            ("srcy", boost::program_options::value<double>()->value_name("src Y"), "y coordinates of source")
             ("destx,x", boost::program_options::value<double>()->value_name("X"), "x coordinates of destination")
             ("desty,y", boost::program_options::value<double>()->value_name("Y"), "y coordinates of destination")
             ("gpsref,g", boost::program_options::value<std::string>()->value_name("gpsref.xml"), "GPS reference file");
@@ -73,6 +75,8 @@ int main(int argc, char **argv) {
                          << endl;
                     return 1;
                 }
+                double src_x = vm["srcx"].as<double>();
+                double src_y = vm["srcy"].as<double>();
                 double dest_x = vm["destx"].as<double>();
                 double dest_y = vm["desty"].as<double>();
                 boost::property_tree::ptree pt;
@@ -85,6 +89,7 @@ int main(int argc, char **argv) {
 
                 // initializing control manager instance
                 Control::ControlManager_t cm;
+                cm.init_point = std::pair<double, double>(src_x, src_y);
                 cm.dest_point = std::pair<double, double>(dest_x, dest_y);
                 cm.mapinfo.width = GetPropertyTree<double>(pt, "Arena.Width", true, nullptr);
                 cm.mapinfo.height = GetPropertyTree<double>(pt, "Arena.Height", true, nullptr);

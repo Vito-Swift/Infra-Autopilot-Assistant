@@ -115,10 +115,9 @@ namespace Control {
         cout << "Generating Route" << endl;
 
         // get initialize point and dest point
-        pair<double, double> init_point = {5, 0};
-        auto map_coord_start = world_coord_to_map(init_point.first, init_point.second, cm->mapinfo);
+        auto map_coord_start = world_coord_to_map(cm->init_point.first, cm->init_point.second, cm->mapinfo);
         auto map_coord_dest = world_coord_to_map(cm->dest_point.first, cm->dest_point.second, cm->mapinfo);
-        cout << "\t from: (" << init_point.first << ", " << init_point.second << ") to ("
+        cout << "\t from: (" << cm->init_point.first << ", " << cm->init_point.second << ") to ("
              << cm->dest_point.first << ", " << cm->dest_point.second << ")" << endl;
         cout << "\t transformed map from: (" << map_coord_start.first << ", " << map_coord_start.second << ") to ("
              << map_coord_dest.first << ", " << map_coord_dest.second << ")" << endl;

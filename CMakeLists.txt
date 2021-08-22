@@ -60,34 +60,34 @@ message("boost inc: ${Boost_INCLUDE_DIR}")
 ################################################################
 # Exec: Build Lamppost Host Program
 ################################################################
-add_executable(LamppostHost
-        src/LPHost/LamppostHostMain.cc
-        src/LPHost/LamppostHostGeneral.cc
-        src/LPHost/LamppostHostRBDetection.cc
-        src/LPHost/LamppostHostCommPanel.cc
-        src/LPHost/LamppostHostBackendConn.cc
-        src/utils.cc
-        include/LPHost/LamppostHostCommPanel.hh
-        include/LPHost/LamppostHostGeneral.hh
-        include/LPHost/LamppostHostRBDetection.hh
-        include/LPHost/LamppostHostUtils.hh
-        include/LPHost/LamppostHostBackendConn.hh
-        include/utils.hh)
-target_link_libraries(LamppostHost
-        btp
-        ipc
-        ${Boost_LIBRARIES}
-        ${OpenCV_LIBS}
-        aruco
-        marker_mapper
-        Threads::Threads
-        mysqlcppconn)
-target_include_directories(LamppostHost
-        PRIVATE include
-        PRIVATE pthread
-        PRIVATE "/usr/local/include/aruco"
-        PRIVATE "/usr/local/include/maker_mapper"
-        PRIVATE "/usr/include")
+#add_executable(LamppostHost
+#        src/LPHost/LamppostHostMain.cc
+#        src/LPHost/LamppostHostGeneral.cc
+#        src/LPHost/LamppostHostRBDetection.cc
+#        src/LPHost/LamppostHostCommPanel.cc
+#        src/LPHost/LamppostHostBackendConn.cc
+#        src/utils.cc
+#        include/LPHost/LamppostHostCommPanel.hh
+#        include/LPHost/LamppostHostGeneral.hh
+#        include/LPHost/LamppostHostRBDetection.hh
+#        include/LPHost/LamppostHostUtils.hh
+#        include/LPHost/LamppostHostBackendConn.hh
+#        include/utils.hh)
+#target_link_libraries(LamppostHost
+#        btp
+#        ipc
+#        ${Boost_LIBRARIES}
+#        ${OpenCV_LIBS}
+#        aruco
+#        marker_mapper
+#        Threads::Threads
+#        mysqlcppconn)
+#target_include_directories(LamppostHost
+#        PRIVATE include
+#        PRIVATE pthread
+#        PRIVATE "/usr/local/include/aruco"
+#        PRIVATE "/usr/local/include/maker_mapper"
+#        PRIVATE "/usr/include")
 
 ################################################################
 # Exec: Build Lamppost Host controller
