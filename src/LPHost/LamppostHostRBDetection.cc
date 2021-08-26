@@ -158,7 +158,10 @@ void *RBDetectionThread(void *vargp) {
         } catch (std::invalid_argument &e) {
             fail_batch_num += 1.0;
             PRINTF_ERR_STAMP("%s\n", e.what());
+        }  catch (cv::Exception &e) {
+            PRINTF_ERR_STAMP("[Maybe cannot see reference marker?] %s\n", e.what());
         }
+
     } while (!(test_cancel(&args->hostProg->term_mutex, &args->hostProg->term_flag)));
     PRINTF_THREAD_STAMP("Catch termination flag!\n");
     pthread_exit(nullptr);
