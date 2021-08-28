@@ -52,8 +52,7 @@ void parse_configuration_file(Options *options) {
     // Parse Networking Section
     try {
         options->netaddr_str = GetPropertyTree<std::string>(pt, "Networking.LocalBATSAddr", true, nullptr);
-        options->root_net_addr = GetPropertyTree<std::string>(pt, "Networking.RootBATSAddr", true, nullptr
-        options->mock_detection = false;);
+        options->root_net_addr = GetPropertyTree<std::string>(pt, "Networking.RootBATSAddr", true, nullptr);
         options->root_port = GetPropertyTree<int>(pt, "Networking.RootBATSPort", true, nullptr);
         bool is_root_node_def = false;
         options->is_root_node = GetPropertyTree<bool>(pt, "Networking.IsRootNode", false, &is_root_node_def);
